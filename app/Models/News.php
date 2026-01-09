@@ -6,17 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class News extends Model
 {
-     protected $fillable = [
-        'title','content','image_path','published_at','user_id'
+    protected $table = 'news';
+
+    protected $fillable = [
+        'title',
+        'slug',
+        'image_path',
+        'content',
+        'published_at',
+    ];
+
+    protected $casts = [
+        'published_at' => 'datetime',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function tags()
-    {
-        return $this->belongsToMany(Tag::class);
     }
 }
