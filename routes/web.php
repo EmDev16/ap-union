@@ -5,6 +5,7 @@ use App\Http\Controllers\NewsController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PromptController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,9 +15,7 @@ Route::get('/', function () {
 Route::resource('news', NewsController::class)->only(['index', 'show']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('posts', PostController::class);
     Route::get('profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
