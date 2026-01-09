@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('prompts', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
+            $table->text('prompt_text');
+            $table->json('allowed_media')->nullable();
+            $table->timestamp('published_at')->nullable();
             $table->timestamps();
         });
     }
