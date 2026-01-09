@@ -17,10 +17,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-use App\Http\Controllers\Admin\NewsAdminController;
-
-Route::middleware(['auth','admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('news', NewsAdminController::class);
-});
-
 require __DIR__.'/auth.php';
