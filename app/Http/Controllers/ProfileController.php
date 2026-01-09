@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,6 +12,16 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    /**
+     * Display the user's profile.
+     */
+    public function show(User $profile): View
+    {
+        return view('profile.show', [
+            'profile' => $profile,
+        ]);
+    }
+
     /**
      * Display the user's profile form.
      */
@@ -24,17 +35,25 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = auth()->user();
+        $data = $request->validate([
+            'username' => 'nullable|string|max:50|unique:profiles,username,' . $user->profile->id,
+            'birthday' => 'nullable|date',
+            'bio' => 'nullable|string|max:1000',
+            'avatar' => 'nullable|image|max:2048',
+        ]);
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->profile->avatar_path = $path;
         }
 
-        $request->user()->save();
+        $user->profile->fill($data);
+        $user->profile->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return redirect()->route('profile.edit')->with('success', 'Profiel bijgewerkt');
     }
 
     /**
