@@ -24,4 +24,11 @@ class News extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function scopePublished(Builder $query)
+    {
+        return $query
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now());
+    }
 }
