@@ -65,5 +65,6 @@ class Kernel extends HttpKernel
 
         // Admin middleware (registreer hier)
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'is_admin' => \App\Http\Middleware\EnsureAdmin::class,
     ];
 }
