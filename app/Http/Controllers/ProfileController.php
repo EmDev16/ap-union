@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
+use App\Models\User;
+use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
@@ -12,7 +13,21 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Publiek profiel (laatste 3 posts)
+     */
+    public function show(User $user): View
+    {
+        $posts = Post::where('user_id', $user->id)
+            ->whereNotNull('published_at')
+            ->orderBy('published_at', 'desc')
+            ->take(3)
+            ->get();
+
+        return view('profile.show', compact('user', 'posts'));
+    }
+
+    /**
+     * Profiel bewerken (ingelogde gebruiker)
      */
     public function edit(Request $request): View
     {
@@ -22,23 +37,34 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Profiel updaten
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = auth()->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $data = $request->validate([
+            'username' => 'nullable|string|max:50|unique:profiles,username,' . $user->profile->id,
+            'birthday' => 'nullable|date',
+            'bio'      => 'nullable|string|max:1000',
+            'avatar'   => 'nullable|image|max:2048',
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->profile->avatar_path = $path;
         }
 
-        $request->user()->save();
+        $user->profile->fill($data);
+        $user->profile->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return redirect()
+            ->route('profile.edit')
+            ->with('success', 'Profiel bijgewerkt');
     }
 
     /**
-     * Delete the user's account.
+     * Account verwijderen
      */
     public function destroy(Request $request): RedirectResponse
     {
@@ -49,7 +75,6 @@ class ProfileController extends Controller
         $user = $request->user();
 
         Auth::logout();
-
         $user->delete();
 
         $request->session()->invalidate();
