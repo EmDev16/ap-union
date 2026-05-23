@@ -1,4 +1,4 @@
-﻿<x-layout>
+﻿<x-layout title="FAQ page">
     <h1>FAQ page</h1>
 
     <p class="text-base leading-7 text-[#1b1b18] dark:text-[#000000]">

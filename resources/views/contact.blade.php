@@ -1,4 +1,4 @@
-﻿<x-layout>
+﻿<x-layout title="Contact Us">
     <h1>Contact Us</h1>
     <p class="text-base leading-7 text-[#1b1b18] dark:text-[#000000]">
         If you have any questions, feedback, or need assistance, please feel free to reach out to us. We value your

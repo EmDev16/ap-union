@@ -1,4 +1,4 @@
-﻿<x-layout>
+﻿<x-layout title="Latest">
     <h1>Latest news</h1>
     <p class="text-base leading-7 text-[#1b1b18] dark:text-[#000000]">
         Welcome to our latest news page! Here, we bring you the most recent updates and developments in our project,
