@@ -50,16 +50,26 @@
         </header>
 
         <nav>
-            <a href="/faqpage">FAQ page</a>
+            <a href="/">Return home</a>
             <a href="/latest">Latest News</a>
             <a href="/contact">Contact Us</a>
         </nav> 
 
         <main class="w-full lg:max-w-4xl max-w-[335px]">
-            <p class="text-base leading-7 text-[#1b1b18] dark:text-[#000000]">
-                Connect with people in a different and deeper way.
-            </p>
+            <h1>FAQ page</h1>
 
+            <p class="text-base leading-7 text-[#1b1b18] dark:text-[#000000]">
+                This is the FAQ page. You can put your frequently asked questions here.
+                Frequently asked questions:
+                <ul class="list-disc list-inside">
+                    <li>What is this website about?</li>
+                    <li>How can I register?</li>
+                    <li>Is there a mobile app available?</li>
+                    <li>How can I contact support?</li>
+                </ul>
+                Placeholder for the actual FAQ page.
+            </p>
+  
         </main>
         <footer > © 2026 {{ config('app.name', 'Laravel') }}. All rights reserved.</footer>
     </body>
