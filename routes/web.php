@@ -19,6 +19,23 @@ Route::get('/latest', function () {
     return view('latest');
 });
 
+Route::get('/explore', function () {
+    return view('explore');
+});
+
+Route::get('/messages', function () {
+    return view('messages');
+});
+
+Route::get('/search', function () {
+    return view('search');
+});
+
+
+Route::get('/ideas', function () {
+    return view('ideas');
+});
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
