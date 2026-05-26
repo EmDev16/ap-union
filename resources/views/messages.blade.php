@@ -24,19 +24,19 @@
         </x-dropdown>
 
         <ul class="space-y-4">
-            <li class="p-4 border rounded-lg bg-white/5">
+            <li class="p-4 border bg-white/5">
                 <h3 class="text-lg font-medium">Conversation with User A</h3>
                 <p class="text-gray-400">Last message: "Hey, how are you?"</p>
             </li>
-            <li class="p-4 border rounded-lg bg-white/5">
+            <li class="p-4 border bg-white/5">
                 <h3 class="text-lg font-medium">Conversation with User B</h3>
                 <p class="text-gray-400">Last message: "Let's catch up soon!"</p>
             </li>
-            <li class="p-4 border rounded-lg bg-white/5">
+            <li class="p-4 border bg-white/5">
                 <h3 class="text-lg font-medium">Conversation with User C</h3>
                 <p class="text-gray-400">Last message: "Can you help me with this?"</p>
             </li>
-            <li class="p-4 border rounded-lg bg-white/5">
+            <li class="p-4 border bg-white/5">
                 <h3 class="text-lg font-medium">Conversation with User D</h3>
                 <p class="text-gray-400">Last message: "Thanks for your help!"</p>
             </li>
