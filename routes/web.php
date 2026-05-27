@@ -33,7 +33,8 @@ Route::get('/search', function () {
 
 
 Route::get('/ideas', function () {
-    return view('ideas');
+    $ideas = DB::table('ideas')->get();
+    return view('ideas', ['ideas' => $ideas]);
 });
 
 Route::get('/dashboard', function () {
