@@ -31,7 +31,7 @@ Route::get('/search', function () {
     return view('search');
 });
 
-Route::get('/users/{username}', [ProfileController::class, 'show'])->name('profile.show');
+Route::get('/users/{user}', [ProfileController::class, 'show'])->name('profile.show');
 
 
 Route::get('/ideas', function () {

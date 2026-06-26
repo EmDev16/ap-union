@@ -1,7 +1,7 @@
 <x-layout title="Home">
     <p class="text-base leading-7 text-[#1b1b18] dark:text-[#000000]">
         This is the search members page. Here you can search for other members of the community and connect with them.
-        You can also filter your search results by location, interests, and more.
+        You can also filter your search results by interests, and more.
     </p>
 
     <div>

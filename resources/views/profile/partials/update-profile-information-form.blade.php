@@ -13,7 +13,7 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
         @csrf
         @method('patch')
 
@@ -25,7 +25,7 @@
 
         <div>
             <x-input-label for="username" :value="__('Username')" />
-            <x-text-input id="username" name="username" type="text" class="mt-1 block w-full" :value="old('username', $user->username)" required autofocus autocomplete="username" />
+            <x-text-input id="username" name="username" type="text" class="mt-1 block w-full" :value="old('username', $user->username)" autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('username')" />
         </div>
 
@@ -54,22 +54,27 @@
         </div>
         
         <div>
-            <x-input-label for="birthdate" :value="__('Birthdate')" />
-            <x-text-input id="birthdate" name="birthdate" type="date" class="mt-1 block w-full" :value="old('birthdate', $user->birthdate)" />
-            <x-input-error class="mt-2" :messages="$errors->get('birthdate')" />
+            <x-input-label for="birthday" :value="__('Birthday')" />
+            <x-text-input id="birthday" name="birthday" type="date" class="mt-1 block w-full" :value="old('birthday', optional($user->birthday)->format('Y-m-d'))" />
+            <x-input-error class="mt-2" :messages="$errors->get('birthday')" />
         </div>
 
         <div>
-            <x-input-label for="about me" :value="__('About Me')" />
-            <x-textarea id="about me" name="about me" class="mt-1 block w-full" :value="old('about me', $user->about_me)" />
-            <x-input-error class="mt-2" :messages="$errors->get('about me')" />
+            <x-input-label for="about_me" :value="__('About Me')" />
+            <textarea id="about_me" name="about_me" rows="4" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('about_me', $user->about_me) }}</textarea>
+            <x-input-error class="mt-2" :messages="$errors->get('about_me')" />
         </div>
 
-        <aside>
-            <x-input-label for="profile_picture" :value="__('Profile Picture')" />
-            <x-text-input id="profile_picture" name="profile_picture" type="file" class="mt-1 block w-full" />
-            <x-input-error class="mt-2" :messages="$errors->get('profile_picture')" />
-        </aside>
+        <div>
+            <x-input-label for="profile_photo" :value="__('Profile Photo')" />
+
+            @if ($user->profile_photo)
+                <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="{{ $user->name }}" class="mt-2 h-24 w-24 rounded-full object-cover">
+            @endif
+
+            <x-text-input id="profile_photo" name="profile_photo" type="file" class="mt-2 block w-full" accept="image/*" />
+            <x-input-error class="mt-2" :messages="$errors->get('profile_photo')" />
+        </div>
 
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
