@@ -50,6 +50,10 @@
                                         {{ __('Profile') }}
                                     </x-dropdown-link>
 
+                                    <x-dropdown-link :href="route('profile.show', Auth::user())">
+                                        {{ __('Public Profile') }}
+                                    </x-dropdown-link>
+
                                     <!-- Authentication -->
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
