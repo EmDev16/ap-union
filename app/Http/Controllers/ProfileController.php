@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +23,17 @@ class ProfileController extends Controller
     }
 
     /**
+     * Show method for profile.
+     */
+
+    public function show(User $username): View
+    {
+        return view('profile.show', [
+            'username' => $username,
+        ]);
+    }
+
+    /**
      * Update the user's profile information.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
@@ -31,6 +43,8 @@ class ProfileController extends Controller
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
         }
+
+        $path = $request->file('profile_photo')?->store('profile-photos', 'public');
 
         $request->user()->save();
 
