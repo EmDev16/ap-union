@@ -10,10 +10,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/faqpage', function () {
-    return view('faqpage');
-});
-
 Route::get('/contact', function () {
     return view('contact');
 });
@@ -39,8 +35,8 @@ Route::get('/users/{user}', [ProfileController::class, 'show'])->name('profile.s
 Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('faqs', FaqManagementController::class);
-    Route::resource('faq-categories', FaqCategoryManagementController::class);
+    Route::resource('faqs', FaqManagementController::class)->except('show');
+    Route::resource('faq-categories', FaqCategoryManagementController::class)->except('show');
 });
 
 Route::get('/ideas', function () {

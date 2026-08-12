@@ -13,7 +13,7 @@ class FaqCategoryPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->is_admin;
     }
 
     /**
@@ -21,7 +21,7 @@ class FaqCategoryPolicy
      */
     public function view(User $user, FaqCategory $faqCategory): bool
     {
-        return false;
+        return $user->is_admin;
     }
 
     /**
@@ -29,7 +29,7 @@ class FaqCategoryPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->is_admin;
     }
 
     /**
@@ -37,7 +37,7 @@ class FaqCategoryPolicy
      */
     public function update(User $user, FaqCategory $faqCategory): bool
     {
-        return false;
+        return $user->is_admin;
     }
 
     /**
@@ -45,7 +45,7 @@ class FaqCategoryPolicy
      */
     public function delete(User $user, FaqCategory $faqCategory): bool
     {
-        return false;
+        return $user->is_admin;
     }
 
     /**
@@ -53,7 +53,7 @@ class FaqCategoryPolicy
      */
     public function restore(User $user, FaqCategory $faqCategory): bool
     {
-        return false;
+        return $user->is_admin;
     }
 
     /**
@@ -61,6 +61,6 @@ class FaqCategoryPolicy
      */
     public function forceDelete(User $user, FaqCategory $faqCategory): bool
     {
-        return false;
+        return $user->is_admin;
     }
 }

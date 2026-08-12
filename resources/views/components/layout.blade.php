@@ -93,7 +93,7 @@
         <a href="/explore">Explore</a>
         <a href="/messages">Messages</a>
         <a href="/search">Search Members</a>
-        <a href="/faqpage">FAQ page</a>
+        <a href="{{ route('faq.index') }}">FAQ page</a>
         <a href="/latest">Latest News</a>
         <a href="/contact">Contact Us</a>
         </nav>

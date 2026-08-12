@@ -12,7 +12,7 @@ class UpdateFaqRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()?->is_admin ?? false;
     }
 
     /**
@@ -23,7 +23,9 @@ class UpdateFaqRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'faq_category_id' => ['required', 'exists:faq_categories,id'],
+            'question' => ['required', 'string'],
+            'answer' => ['required', 'string'],
         ];
     }
 }
