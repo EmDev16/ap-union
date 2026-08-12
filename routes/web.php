@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\FaqManagementController;
 use App\Http\Controllers\Admin\FaqCategoryManagementController;
 use App\Http\Controllers\Admin\ContactManagementController;
 use App\Http\Controllers\Admin\NewsManagementController;
+use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\NewsController;
 
@@ -42,6 +43,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('news', NewsManagementController::class)->except('show');
     Route::get('contacts', [ContactManagementController::class, 'index'])->name('contacts.index');
     Route::patch('contacts/{contact}', [ContactManagementController::class, 'update'])->name('contacts.update');
+    Route::get('users', [UserManagementController::class, 'index'])->name('users.index');
+    Route::get('users/create', [UserManagementController::class, 'create'])->name('users.create');
+    Route::post('users', [UserManagementController::class, 'store'])->name('users.store');
+    Route::patch('users/{user}/toggle-admin', [UserManagementController::class, 'toggleAdmin'])->name('users.toggle-admin');
 });
 
 Route::get('/ideas', function () {
