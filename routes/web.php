@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FaqController;
+use App\Http\Controllers\Admin\FaqManagementController;
+use App\Http\Controllers\Admin\FaqCategoryManagementController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -33,6 +36,12 @@ Route::get('/search', function () {
 
 Route::get('/users/{user}', [ProfileController::class, 'show'])->name('profile.show');
 
+Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('faqs', FaqManagementController::class);
+    Route::resource('faq-categories', FaqCategoryManagementController::class);
+});
 
 Route::get('/ideas', function () {
     $ideas = DB::table('ideas')->get();
