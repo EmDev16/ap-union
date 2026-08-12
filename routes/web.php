@@ -5,18 +5,20 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\Admin\FaqManagementController;
 use App\Http\Controllers\Admin\FaqCategoryManagementController;
+use App\Http\Controllers\Admin\ContactManagementController;
+use App\Http\Controllers\Admin\NewsManagementController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\NewsController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/contact', function () {
-    return view('contact');
-});
+Route::get('/contact', [ContactController::class, 'create'])->name('contact.create');
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
-Route::get('/latest', function () {
-    return view('latest');
-});
+Route::get('/news', [NewsController::class, 'index'])->name('news.index');
+Route::get('/news/{news}', [NewsController::class, 'show'])->name('news.show');
 
 Route::get('/explore', function () {
     return view('explore');
@@ -37,6 +39,9 @@ Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('faqs', FaqManagementController::class)->except('show');
     Route::resource('faq-categories', FaqCategoryManagementController::class)->except('show');
+    Route::resource('news', NewsManagementController::class)->except('show');
+    Route::get('contacts', [ContactManagementController::class, 'index'])->name('contacts.index');
+    Route::patch('contacts/{contact}', [ContactManagementController::class, 'update'])->name('contacts.update');
 });
 
 Route::get('/ideas', function () {

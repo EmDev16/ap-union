@@ -94,8 +94,8 @@
         <a href="/messages">Messages</a>
         <a href="/search">Search Members</a>
         <a href="{{ route('faq.index') }}">FAQ page</a>
-        <a href="/latest">Latest News</a>
-        <a href="/contact">Contact Us</a>
+        <a href="{{ route('news.index') }}">Latest News</a>
+        <a href="{{ route('contact.create') }}">Contact Us</a>
         </nav>
 
         <main class="w-full lg:max-w-4xl max-w-[335px]">

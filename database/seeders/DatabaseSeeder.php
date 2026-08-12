@@ -26,6 +26,6 @@ class DatabaseSeeder extends Seeder
             'is_admin' => true,
         ]);
 
-        $this->call(FaqSeeder::class);
+        $this->call([FaqSeeder::class, NewsSeeder::class]);
     }
 }

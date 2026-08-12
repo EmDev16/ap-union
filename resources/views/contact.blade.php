@@ -1,17 +1,13 @@
-﻿<x-layout title="Contact Us">
-    <h1>Contact Us</h1>
-    <p class="text-base leading-7 text-[#1b1b18] dark:text-[#000000]">
-        If you have any questions, feedback, or need assistance, please feel free to reach out to us. We value your
-        input and are here to help. You can contact us through the following methods:
-    </p>
-    <x-card>
-        <ul class="list-disc list-inside mt-4">
-            <li>Email: <a href="mailto:info@yourcompany.com">info@yourcompany.com</a></li>
-            <li>Phone: +1 (123) 456-7890</li>
-            <li>Address: 123 Main Street, Anytown, USA</li>
-        </ul>
-        We look forward to hearing from you and will do our best to respond promptly.
-        Placeholder for the contact form or additional contact information.
-        </p>
-    </x-card>
+<x-layout title="Contact">
+    <h1 class="text-2xl font-bold">Contact</h1>
+    <p class="mt-2">Heb je een vraag of feedback? Stuur ons een bericht.</p>
+    @if (session('status')) <p class="mt-4 text-green-700">{{ session('status') }}</p> @endif
+    <form method="POST" action="{{ route('contact.store') }}" class="mt-6 space-y-4">
+        @csrf
+        <div><label for="name">Naam</label><input id="name" name="name" value="{{ old('name') }}" required class="block w-full"><x-input-error :messages="$errors->get('name')" /></div>
+        <div><label for="email">E-mail</label><input id="email" name="email" type="email" value="{{ old('email') }}" required class="block w-full"><x-input-error :messages="$errors->get('email')" /></div>
+        <div><label for="subject">Onderwerp</label><input id="subject" name="subject" value="{{ old('subject') }}" required class="block w-full"><x-input-error :messages="$errors->get('subject')" /></div>
+        <div><label for="message">Bericht</label><textarea id="message" name="message" required maxlength="5000" class="block w-full" rows="6">{{ old('message') }}</textarea><x-input-error :messages="$errors->get('message')" /></div>
+        <button class="rounded bg-indigo-600 px-4 py-2 text-white">Verstuur</button>
+    </form>
 </x-layout>
