@@ -28,6 +28,8 @@ class ProfileController extends Controller
      */
     public function show(User $user): View
     {
+        $user->load(['posts.media']);
+
         return view('profile.show', [
             'user' => $user,
         ]);

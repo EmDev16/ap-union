@@ -25,11 +25,11 @@
             @if (Route::has('login'))
                 <nav class="flex items-center justify-end gap-4">
                     @auth
-                                <div class="hidden sm:flex sm:items-center sm:ms-6">
-                            <a href="/ideas" class="inline-block px-5 py-1.5 dark:text-[#000000] text-[#1b1b18] border border-transparent hover:border-[#19140035] dark:hover:border-[#3E3E3A] rounded-sm text-sm leading-normal">
+                        @can('create', \App\Models\Post::class)
+                            <a href="{{ route('posts.create') }}" class="inline-block rounded bg-indigo-600 px-5 py-1.5 text-sm leading-normal" style="color: #ffffff;">
                                 Post
                             </a>
-                        </div>
+                        @endcan
                         <!-- Settings Dropdown -->
                         <div class="hidden sm:flex sm:items-center sm:ms-6">
                             <x-dropdown align="right" width="48">
