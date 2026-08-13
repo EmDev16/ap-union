@@ -11,6 +11,11 @@ use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\FeedController;
+use App\Http\Controllers\FollowController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\LikeController;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,9 +27,7 @@ Route::post('/contact', [ContactController::class, 'store'])->name('contact.stor
 Route::get('/news', [NewsController::class, 'index'])->name('news.index');
 Route::get('/news/{news}', [NewsController::class, 'show'])->name('news.show');
 
-Route::get('/explore', function () {
-    return view('explore');
-});
+Route::get('/explore', [FeedController::class, 'explore'])->name('explore');
 
 Route::get('/messages', function () {
     return view('messages');
@@ -55,9 +58,7 @@ Route::get('/ideas', function () {
     return view('ideas', ['ideas' => $ideas]);
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [FeedController::class, 'feed'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -66,6 +67,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+    Route::get('/feed', [FeedController::class, 'feed'])->name('feed');
+    Route::post('/users/{user}/follow', [FollowController::class, 'store'])->name('users.follow');
+    Route::delete('/users/{user}/follow', [FollowController::class, 'destroy'])->name('users.unfollow');
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    Route::post('/posts/{post}/like', [LikeController::class, 'store'])->name('posts.like');
+    Route::delete('/posts/{post}/like', [LikeController::class, 'destroy'])->name('posts.unlike');
 });
 
 require __DIR__.'/auth.php';

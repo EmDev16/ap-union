@@ -24,10 +24,12 @@ class PostController extends Controller
         $post = $request->user()->posts()->create(['content' => $request->validated('content')]);
 
         foreach ($request->file('media', []) as $index => $file) {
-            $type = str_starts_with($file->getMimeType(), 'video/') ? 'video' : 'image';
+            $mimeType = $file->getMimeType();
+            $type = str_starts_with($mimeType, 'video/') ? 'video' : 'image';
             $post->media()->create([
                 'path' => $file->store('posts', 'public'),
                 'type' => $type,
+                'mime_type' => $mimeType,
                 'sort_order' => $index,
             ]);
         }

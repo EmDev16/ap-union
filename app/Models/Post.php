@@ -22,4 +22,14 @@ class Post extends Model
     {
         return $this->hasMany(PostMedia::class)->orderBy('sort_order');
     }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class)->orderBy('created_at', 'desc');
+    }
+
+    public function likes(): HasMany
+    {
+        return $this->hasMany(Like::class);
+    }
 }

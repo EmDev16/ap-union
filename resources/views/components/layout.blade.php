@@ -26,8 +26,8 @@
                 <nav class="flex items-center justify-end gap-4">
                     @auth
                         @can('create', \App\Models\Post::class)
-                            <a href="{{ route('posts.create') }}" class="inline-block rounded bg-indigo-600 px-5 py-1.5 text-sm leading-normal" style="color: #ffffff;">
-                                Post
+                            <a href="{{ route('posts.create') }}" class="inline-block rounded bg-indigo-600 px-5 py-1.5 text-sm leading-normal text-white font-semibold hover:bg-indigo-700">
+                                Create Post
                             </a>
                         @endcan
                         <!-- Settings Dropdown -->
@@ -90,7 +90,7 @@
         </header>
         <nav class="w-full lg:max-w-4xl max-w-[335px] mb-6 flex items-center justify-between gap-6">
         <a href="/">Home</a>
-        <a href="/explore">Explore</a>
+        <a href="{{ route('explore') }}">Explore</a>
         <a href="/messages">Messages</a>
         <a href="/search">Search Members</a>
         <a href="{{ route('faq.index') }}">FAQ page</a>

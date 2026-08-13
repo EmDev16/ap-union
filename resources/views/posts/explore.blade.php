@@ -1,6 +1,6 @@
-<x-layout title="Dashboard">
+<x-layout title="Explore">
     <div style="color: #111827;">
-        <h1 class="text-2xl font-bold mb-6">Your Feed</h1>
+        <h1 class="text-2xl font-bold mb-6">Explore</h1>
         
         @if($posts->count() > 0)
             <div class="space-y-6">
@@ -14,7 +14,7 @@
             </div>
         @else
             <div class="text-center py-12">
-                <p class="text-gray-600">You don't follow anyone yet. Go to <a href="{{ route('explore') }}" class="text-indigo-600 underline font-semibold">Explore</a> and follow some users!</p>
+                <p class="text-gray-600">No posts yet. Be the first!</p>
             </div>
         @endif
     </div>
