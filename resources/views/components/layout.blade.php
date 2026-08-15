@@ -25,11 +25,11 @@
             @if (Route::has('login'))
                 <nav class="flex items-center justify-end gap-4">
                     @auth
-                                <div class="hidden sm:flex sm:items-center sm:ms-6">
-                            <a href="/ideas" class="inline-block px-5 py-1.5 dark:text-[#000000] text-[#1b1b18] border border-transparent hover:border-[#19140035] dark:hover:border-[#3E3E3A] rounded-sm text-sm leading-normal">
-                                Post
+                        @can('create', \App\Models\Post::class)
+                            <a href="{{ route('posts.create') }}" class="inline-block rounded bg-indigo-600 px-5 py-1.5 text-sm leading-normal text-white font-semibold hover:bg-indigo-700">
+                                Create Post
                             </a>
-                        </div>
+                        @endcan
                         <!-- Settings Dropdown -->
                         <div class="hidden sm:flex sm:items-center sm:ms-6">
                             <x-dropdown align="right" width="48">
@@ -90,12 +90,12 @@
         </header>
         <nav class="w-full lg:max-w-4xl max-w-[335px] mb-6 flex items-center justify-between gap-6">
         <a href="/">Home</a>
-        <a href="/explore">Explore</a>
+        <a href="{{ route('explore') }}">Explore</a>
         <a href="/messages">Messages</a>
         <a href="/search">Search Members</a>
-        <a href="/faqpage">FAQ page</a>
-        <a href="/latest">Latest News</a>
-        <a href="/contact">Contact Us</a>
+        <a href="{{ route('faq.index') }}">FAQ page</a>
+        <a href="{{ route('news.index') }}">Latest News</a>
+        <a href="{{ route('contact.create') }}">Contact Us</a>
         </nav>
 
         <main class="w-full lg:max-w-4xl max-w-[335px]">
