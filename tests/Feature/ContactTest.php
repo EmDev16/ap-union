@@ -17,3 +17,18 @@ test('guests can submit a contact message and the admin receives an email', func
     $contact = Contact::where('email', 'jane@example.com')->firstOrFail();
     Mail::assertSent(ContactReceived::class, fn (ContactReceived $mail) => $mail->contact->is($contact));
 });
+
+test('the contact email is sent to the configured admin address', function () {
+    Mail::fake();
+    config(['mail.admin_address' => 'beheer@apunion.test']);
+
+    $this->post(route('contact.store'), [
+        'name' => 'John Doe',
+        'email' => 'john@example.com',
+        'subject' => 'Samenwerking',
+        'message' => 'Graag meer info.',
+    ]);
+
+    Mail::assertSent(ContactReceived::class, fn (ContactReceived $mail) => $mail->hasTo('beheer@apunion.test')
+        && $mail->envelope()->subject === 'Nieuw contactbericht: Samenwerking');
+});

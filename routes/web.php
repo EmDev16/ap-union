@@ -15,7 +15,6 @@ use App\Http\Controllers\FeedController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
-use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return view('welcome');
@@ -51,11 +50,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('users/create', [UserManagementController::class, 'create'])->name('users.create');
     Route::post('users', [UserManagementController::class, 'store'])->name('users.store');
     Route::patch('users/{user}/toggle-admin', [UserManagementController::class, 'toggleAdmin'])->name('users.toggle-admin');
-});
-
-Route::get('/ideas', function () {
-    $ideas = DB::table('ideas')->get();
-    return view('ideas', ['ideas' => $ideas]);
 });
 
 Route::get('/dashboard', [FeedController::class, 'feed'])->middleware(['auth', 'verified'])->name('dashboard');

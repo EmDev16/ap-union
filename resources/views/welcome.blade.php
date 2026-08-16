@@ -61,11 +61,14 @@
     <style>
         .home-layout {
             display: grid;
-            width: calc(100vw - 48px);
+            width: min(calc(100vw - 48px), var(--page-wide-width));
             margin-left: 50%;
             transform: translateX(-50%);
-            grid-template-columns: minmax(180px, 1fr) minmax(0, 896px) minmax(180px, 1fr);
-            gap: 24px;
+            grid-template-columns:
+                minmax(var(--page-side-width), 1fr)
+                minmax(0, var(--page-content-width))
+                minmax(var(--page-side-width), 1fr);
+            gap: var(--page-gap);
             align-items: start;
         }
 
