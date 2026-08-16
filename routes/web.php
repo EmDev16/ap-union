@@ -34,6 +34,7 @@ Route::get('/messages', function () {
 })->name('messages');
 
 Route::get('/search', [MemberSearchController::class, 'index'])->name('search');
+Route::get('/search/suggestions', [MemberSearchController::class, 'suggestions'])->name('search.suggestions');
 
 Route::get('/users/{user}', [ProfileController::class, 'show'])->name('profile.show');
 

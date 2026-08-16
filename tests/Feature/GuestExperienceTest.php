@@ -60,6 +60,39 @@ test('guests can search for members', function () {
         ->assertDontSee('bob');
 });
 
+test('the search page lists no members without a search term', function () {
+    User::factory()->create(['username' => 'alice']);
+
+    $this->get(route('search'))
+        ->assertOk()
+        ->assertDontSee('alice');
+});
+
+test('searching needs at least three characters', function () {
+    User::factory()->create(['username' => 'alice']);
+
+    $this->get(route('search', ['q' => 'al']))
+        ->assertOk()
+        ->assertDontSee('alice');
+
+    $this->getJson(route('search.suggestions', ['q' => 'al']))
+        ->assertOk()
+        ->assertExactJson([]);
+});
+
+test('member suggestions are returned from three characters', function () {
+    $alice = User::factory()->create(['name' => 'Alice Example', 'username' => 'alice']);
+    User::factory()->create(['name' => 'Bob Example', 'username' => 'bob']);
+
+    $this->getJson(route('search.suggestions', ['q' => 'ali']))
+        ->assertOk()
+        ->assertExactJson([[
+            'name' => 'alice',
+            'posts_count' => 0,
+            'url' => route('profile.show', $alice),
+        ]]);
+});
+
 test('guests only see username, description and post count on a profile', function () {
     $user = User::factory()->create([
         'name' => 'Hidden Realname',
