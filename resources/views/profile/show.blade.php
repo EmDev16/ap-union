@@ -92,17 +92,18 @@
 
             @auth
                 @if ($user->is(auth()->user()))
-                    <div class="mt-4 border-t border-gray-200 pt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+                    @php($openRequests = auth()->user()->followRequests()->count())
+                    <div class="profile-tools mt-4 border border-gray-300 text-sm">
                         @if (auth()->user()->isAdmin())
-                            <a href="{{ route('admin.questions.index') }}" class="text-gray-700 hover:underline whitespace-nowrap">My questions</a>
+                            <a href="{{ route('admin.questions.index') }}" class="profile-tool">My questions</a>
                         @else
-                            <a href="{{ route('posts.showcase') }}" class="text-gray-700 hover:underline whitespace-nowrap">Choose visible posts</a>
-                            <a href="{{ route('answers.index') }}" class="text-gray-700 hover:underline whitespace-nowrap">My answers</a>
+                            <a href="{{ route('posts.showcase') }}" class="profile-tool">Visible posts</a>
+                            <a href="{{ route('answers.index') }}" class="profile-tool">My answers</a>
                         @endif
-                        <a href="{{ route('follows.requests') }}" class="text-gray-700 hover:underline whitespace-nowrap">
+                        <a href="{{ route('follows.requests') }}" class="profile-tool">
                             Follow requests
-                            @if (auth()->user()->followRequests()->count() > 0)
-                                <span class="nav-count-badge ml-1">{{ auth()->user()->followRequests()->count() }}</span>
+                            @if ($openRequests > 0)
+                                <span class="nav-count-badge">{{ $openRequests }}</span>
                             @endif
                         </a>
                     </div>
