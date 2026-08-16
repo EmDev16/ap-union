@@ -26,11 +26,10 @@
                     <li class="p-4 border bg-white/5">
                         <h3 class="text-lg font-medium">
                             <a href="{{ route('profile.show', $member) }}" class="hover:underline"
-                                data-member-link data-posts-count="{{ $member->posts_count }}">
+                                data-member-link>
                                 {{ $member->username ?: $member->name }}
                             </a>
                         </h3>
-                        <p class="text-gray-600">{{ $member->posts_count }} posts</p>
                     </li>
                 @empty
                     <li class="p-4 border bg-white/5">
@@ -91,11 +90,7 @@
                     link.textContent = member.name;
                     link.className = 'text-lg font-medium hover:underline';
 
-                    const count = document.createElement('p');
-                    count.className = 'text-gray-600';
-                    count.textContent = member.posts_count + ' posts';
-
-                    item.append(link, count);
+                    item.append(link);
                     recentList.append(item);
                 });
 
@@ -121,7 +116,7 @@
                     const link = document.createElement('a');
                     link.href = member.url;
                     link.className = 'block px-4 py-2 hover:bg-gray-100';
-                    link.textContent = member.name + ' · ' + member.posts_count + ' posts';
+                    link.textContent = member.name;
                     link.addEventListener('click', () => remember(member));
 
                     item.append(link);
@@ -163,7 +158,6 @@
                 link.addEventListener('click', function () {
                     remember({
                         name: link.textContent.trim(),
-                        posts_count: Number(link.dataset.postsCount),
                         url: link.href,
                     });
                 });

@@ -88,7 +88,6 @@ test('member suggestions are returned from three characters', function () {
         ->assertOk()
         ->assertExactJson([[
             'name' => 'alice',
-            'posts_count' => 0,
             'url' => route('profile.show', $alice),
         ]]);
 });

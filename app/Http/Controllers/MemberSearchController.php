@@ -41,7 +41,6 @@ class MemberSearchController extends Controller
         return response()->json(
             $this->search($term)->limit(10)->get()->map(fn (User $user) => [
                 'name' => $user->username ?: $user->name,
-                'posts_count' => $user->posts_count,
                 'url' => route('profile.show', $user),
             ])
         );
@@ -68,7 +67,6 @@ class MemberSearchController extends Controller
                 $query->where('username', 'like', '%'.$term.'%')
                     ->orWhere('name', 'like', '%'.$term.'%');
             })
-            ->withCount('posts')
             ->orderBy('name');
     }
 }
