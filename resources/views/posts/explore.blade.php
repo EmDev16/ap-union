@@ -16,7 +16,6 @@
             @else
                 <div class="mt-8 border border-gray-300 rounded-lg p-4 bg-white">
                     <p class="text-gray-700">
-                        This is a sample of {{ $posts->count() }} posts.
                         <a href="{{ route('login') }}" class="underline">Log in</a>
                         @if (Route::has('register'))
                             or <a href="{{ route('register') }}" class="underline">create an account</a>

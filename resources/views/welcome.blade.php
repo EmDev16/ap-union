@@ -186,7 +186,7 @@
                 <div>
                     <h1 class="home-main-title">Welcome to AP Union</h1>
                     <p class="home-muted">
-                        AP Union is a place for conversation instead of popularity: you follow the people you care
+                        AP Union is a place for conversation and interest: you follow the people you care
                         about and read their posts in chronological order, without an algorithm in between.
                     </p>
                 </div>
