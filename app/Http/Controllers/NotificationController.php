@@ -23,6 +23,13 @@ class NotificationController extends Controller
         ]);
     }
 
+    public function dismiss(Request $request, string $notification): RedirectResponse
+    {
+        $request->user()->notifications()->whereKey($notification)->update(['read_at' => now()]);
+
+        return back();
+    }
+
     public function destroy(Request $request, string $notification): RedirectResponse
     {
         $request->user()->notifications()->whereKey($notification)->delete();

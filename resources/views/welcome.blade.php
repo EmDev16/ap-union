@@ -50,6 +50,28 @@
         .home-sidebar-title {
             font-size: 18px;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .home-count-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 22px;
+            height: 22px;
+            padding: 0 6px;
+            border-radius: 999px;
+            background: #4f46e5;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .home-side-box-new {
+            border-left: 3px solid #4f46e5;
+            background: rgba(79, 70, 229, 0.06);
         }
 
         .home-main-title {
@@ -119,7 +141,16 @@
     <div class="home-layout">
         <aside class="home-sidebar">
             <div>
-                <h2 class="home-sidebar-title">Notifications</h2>
+                <h2 class="home-sidebar-title">
+                    @auth
+                        <a href="{{ route('notifications.index') }}" class="hover:underline">Notifications</a>
+                        @if ($notificationCount > 0)
+                            <span class="home-count-badge">{{ $notificationCount }}</span>
+                        @endif
+                    @else
+                        Notifications
+                    @endauth
+                </h2>
                 <p class="home-muted">
                     New followers, likes, comments, and other interactions with your posts.
                 </p>
@@ -135,7 +166,7 @@
             @else
                 <ul class="home-list">
                     @forelse ($notifications as $notification)
-                        <li class="home-side-box">
+                        <li class="home-side-box home-side-box-new">
                             <div class="flex items-start justify-between gap-2">
                                 <h3 class="home-item-title">
                                     <a href="{{ data_get($notification->data, 'url', route('home')) }}" class="hover:underline">
@@ -143,24 +174,22 @@
                                     </a>
                                 </h3>
 
-                                <form method="POST" action="{{ route('notifications.destroy', $notification->id) }}">
+                                <form method="POST" action="{{ route('notifications.dismiss', $notification->id) }}">
                                     @csrf
-                                    @method('DELETE')
+                                    @method('PATCH')
                                     <button type="submit" class="text-gray-500 hover:text-gray-900"
-                                        title="Delete this notification"
-                                        aria-label="Delete this notification">&times;</button>
+                                        title="Hide this notification"
+                                        aria-label="Hide this notification">&times;</button>
                                 </form>
                             </div>
                             <p class="home-small-text">{{ data_get($notification->data, 'description') }}</p>
                         </li>
                     @empty
                         <li class="home-side-box">
-                            <p class="home-small-text">No notifications yet.</p>
+                            <p class="home-small-text">No new notifications.</p>
                         </li>
                     @endforelse
                 </ul>
-
-                <a href="{{ route('notifications.index') }}" class="text-sm underline">See all notifications</a>
             @endguest
         </aside>
 
@@ -225,7 +254,13 @@
 
         <aside class="home-sidebar">
             <div>
-                <h2 class="home-sidebar-title">Questions</h2>
+                <h2 class="home-sidebar-title">
+                    @auth
+                        <a href="{{ route('questions.index') }}" class="hover:underline">Questions</a>
+                    @else
+                        Questions
+                    @endauth
+                </h2>
                 <p class="home-muted">
                     New questions, answered questions, and other question activity.
                 </p>
@@ -252,12 +287,10 @@
                         </li>
                     @empty
                         <li class="home-side-box">
-                            <p class="home-small-text">No questions yet.</p>
+                            <p class="home-small-text">No open questions.</p>
                         </li>
                     @endforelse
                 </ul>
-
-                <a href="{{ route('questions.index') }}" class="text-sm underline">See all questions</a>
             @endguest
         </aside>
     </div>

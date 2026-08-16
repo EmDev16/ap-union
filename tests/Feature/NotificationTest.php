@@ -49,6 +49,37 @@ test('notifications show on the home page and can be deleted', function () {
     expect($user->notifications()->count())->toBe(0);
 });
 
+test('hiding a notification on home keeps it in the overview', function () {
+    $user = User::factory()->create();
+    $user->notify(new NewFollower(User::factory()->create()));
+    $notification = $user->notifications()->firstOrFail();
+    $notification->update(['data' => ['title' => 'Verborgen melding']]);
+
+    $this->actingAs($user)->patch(route('notifications.dismiss', $notification->id));
+
+    expect($user->unreadNotifications()->count())->toBe(0)
+        ->and($user->notifications()->count())->toBe(1);
+
+    $this->actingAs($user)->get(route('home'))
+        ->assertOk()
+        ->assertDontSee('Verborgen melding');
+
+    $this->actingAs($user)->get(route('notifications.index'))
+        ->assertOk()
+        ->assertSee('Verborgen melding');
+});
+
+test('the home page shows the number of new notifications', function () {
+    $user = User::factory()->create();
+    $user->notify(new NewFollower(User::factory()->create()));
+    $user->notify(new NewFollower(User::factory()->create()));
+
+    $this->actingAs($user)->get(route('home'))
+        ->assertOk()
+        ->assertSee('home-count-badge', false)
+        ->assertSee(route('notifications.index'));
+});
+
 test('you cannot delete someone elses notification', function () {
     $user = User::factory()->create();
     $other = User::factory()->create();

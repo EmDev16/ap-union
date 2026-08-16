@@ -2,9 +2,13 @@
     <!-- Post Header -->
     <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
+            @if($post->user->profile_photo)
+                <img src="{{ asset('storage/' . $post->user->profile_photo) }}" alt="{{ $post->user->username ?: $post->user->name }}" class="w-8 h-8 rounded-full object-cover">
+            @else
+                <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
+            @endif
             <div>
-                <a href="{{ route('profile.show', $post->user) }}" class="font-bold text-gray-900 hover:underline">{{ $post->user->name }}</a>
+                <a href="{{ route('profile.show', $post->user) }}" class="font-bold text-gray-900 hover:underline">{{ $post->user->username ?: $post->user->name }}</a>
                 <p class="text-xs text-gray-600">{{ $post->created_at->diffForHumans() }}</p>
             </div>
         </div>

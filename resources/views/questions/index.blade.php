@@ -1,34 +1,9 @@
 <x-layout title="Questions">
     <h1 class="text-2xl font-bold">Questions</h1>
 
-    @if (session('status'))
-        <p class="mt-4 text-green-700">{{ session('status') }}</p>
-    @endif
-
-    <form method="POST" action="{{ route('questions.store') }}" class="mt-6 space-y-3 border p-4 bg-white/5">
-        @csrf
-        <div>
-            <label for="title" class="block font-medium">Ask a question</label>
-            <input id="title" name="title" type="text" value="{{ old('title') }}" required
-                class="mt-1 w-full border border-gray-300 p-2">
-            @error('title')
-                <p class="text-red-600 text-sm">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <label for="description" class="block font-medium">Description (optional)</label>
-            <textarea id="description" name="description" rows="3"
-                class="mt-1 w-full border border-gray-300 p-2">{{ old('description') }}</textarea>
-            @error('description')
-                <p class="text-red-600 text-sm">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <button type="submit" class="rounded bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700">
-            Post question
-        </button>
-    </form>
+    <p class="text-base leading-7 text-[#1b1b18] dark:text-[#000000]">
+        The questions of the last {{ $months }} months that you have not answered yet.
+    </p>
 
     <ul class="space-y-4 mt-6">
         @forelse ($questions as $question)
@@ -46,8 +21,10 @@
             </li>
         @empty
             <li class="p-4 border bg-white/5">
-                <p class="text-gray-600">No questions yet.</p>
+                <p class="text-gray-600">You have answered every question. Nice work.</p>
             </li>
         @endforelse
     </ul>
+
+    <a href="{{ route('answers.index') }}" class="inline-block mt-6 underline">See my answers</a>
 </x-layout>

@@ -106,6 +106,21 @@ class MessageController extends Controller
         return to_route('messages.show', $conversation);
     }
 
+    /**
+     * Hide the conversation for this user only, so it starts clean next time.
+     */
+    public function destroy(Request $request, Conversation $conversation): RedirectResponse
+    {
+        $this->authorizeParticipant($request->user(), $conversation);
+
+        $conversation->participants()->updateExistingPivot($request->user()->id, [
+            'cleared_at' => now(),
+            'last_read_at' => now(),
+        ]);
+
+        return to_route('messages');
+    }
+
     private function conversationWith(User $user, User $partner): Conversation
     {
         $conversation = $user->conversations()
@@ -133,6 +148,8 @@ class MessageController extends Controller
             ->with(['participants', 'messages'])
             ->orderByRaw('coalesce(last_message_at, conversations.created_at) desc')
             ->get();
+
+        $conversations = $conversations->filter(fn (Conversation $conversation) => $conversation->isVisibleFor($user));
 
         if ($this->filter($request) === 'unread') {
             $conversations = $conversations->filter(fn (Conversation $conversation) => $conversation->unreadCountFor($user) > 0);

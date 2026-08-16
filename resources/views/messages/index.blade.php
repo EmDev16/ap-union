@@ -20,15 +20,32 @@
             overflow-y: auto;
         }
 
+        .message-row {
+            display: flex;
+        }
+
+        .message-row.is-mine {
+            justify-content: flex-end;
+        }
+
         .message-bubble {
             border: 1px solid #d1d5db;
             background: #ffffff;
             padding: 12px;
             overflow-wrap: anywhere;
+            max-width: 80%;
         }
 
         .message-bubble.is-mine {
             background: #eef2ff;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 9999px;
+            object-fit: cover;
+            background: #d1d5db;
         }
 
         .message-unread {
@@ -96,24 +113,36 @@
                     </x-dropdown>
                 </div>
 
+                <a href="{{ route('messages.create') }}"
+                    class="mt-4 inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white text-xl hover:bg-indigo-700"
+                    title="Start a new conversation">+</a>
+
                 <ul class="space-y-4 mt-4">
                     @forelse ($conversations as $item)
                         @php
                             $partner = $item->partnerFor(auth()->user());
                             $unread = $item->unreadCountFor(auth()->user());
-                            $latest = $item->latestMessage;
+                            $latest = $item->visibleMessagesFor(auth()->user())->last();
                             $preview = $latest === null
                                 ? 'No messages yet'
                                 : (filled($latest->body) ? Str::limit($latest->body, 40) : 'Picture');
                         @endphp
                         <li class="p-4 border bg-white/5 {{ $conversation && $conversation->is($item) ? 'border-indigo-500' : '' }}">
                             <a href="{{ route('messages.show', $item) }}" class="flex items-center justify-between gap-4">
-                                <span>
-                                    <span class="text-lg font-medium block">
-                                        {{ $partner?->username ?: $partner?->name }}
-                                    </span>
-                                    <span class="text-gray-500 text-sm">
-                                        {{ $preview }}
+                                <span class="flex items-center gap-3">
+                                    @if ($partner?->profile_photo)
+                                        <img src="{{ asset('storage/' . $partner->profile_photo) }}"
+                                            alt="{{ $partner->username ?: $partner->name }}" class="message-avatar">
+                                    @else
+                                        <span class="message-avatar block"></span>
+                                    @endif
+                                    <span>
+                                        <span class="text-lg font-medium block">
+                                            {{ $partner?->username ?: $partner?->name }}
+                                        </span>
+                                        <span class="text-gray-500 text-sm">
+                                            {{ $preview }}
+                                        </span>
                                     </span>
                                 </span>
                                 @if ($unread > 0)
@@ -129,10 +158,6 @@
                         </li>
                     @endforelse
                 </ul>
-
-                <a href="{{ route('messages.create') }}"
-                    class="mt-4 inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white text-xl hover:bg-indigo-700"
-                    title="Start a new conversation">+</a>
             </section>
 
             @if ($conversation)
@@ -140,44 +165,72 @@
                     $partner = $conversation->partnerFor(auth()->user());
                 @endphp
                 <section class="p-4 border bg-white/5">
-                    <h2 class="text-xl font-semibold">
-                        <a href="{{ route('profile.show', $partner) }}" class="hover:underline">
-                            {{ $partner?->username ?: $partner?->name }}
-                        </a>
-                    </h2>
+                    <div class="flex items-center justify-between gap-4">
+                        <h2 class="text-xl font-semibold flex items-center gap-3">
+                            @if ($partner?->profile_photo)
+                                <img src="{{ asset('storage/' . $partner->profile_photo) }}"
+                                    alt="{{ $partner->username ?: $partner->name }}" class="message-avatar">
+                            @else
+                                <span class="message-avatar block"></span>
+                            @endif
+                            <a href="{{ route('profile.show', $partner) }}" class="hover:underline">
+                                {{ $partner?->username ?: $partner?->name }}
+                            </a>
+                        </h2>
+
+                        <x-dropdown align="right" width="48">
+                            <x-slot name="trigger">
+                                <button class="text-gray-500 hover:text-gray-700" title="Conversation settings"
+                                    aria-label="Conversation settings">&#9881;</button>
+                            </x-slot>
+                            <x-slot name="content">
+                                <form method="POST" action="{{ route('messages.destroy', $conversation) }}"
+                                    onsubmit="return confirm('Delete this conversation for you? The other person keeps it.');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        Delete conversation for me
+                                    </button>
+                                </form>
+                            </x-slot>
+                        </x-dropdown>
+                    </div>
 
                     <div class="messages-thread mt-4" data-message-thread>
-                        @foreach ($conversation->messages->sortBy('created_at') as $message)
-                            <div class="message-bubble {{ $message->user_id === auth()->id() ? 'is-mine' : '' }}"
-                                data-message-id="{{ $message->id }}">
-                                @if ($message->replyTo)
-                                    <p class="text-xs text-gray-500 border-l-2 border-gray-300 pl-2 mb-2">
-                                        {{ $message->replyTo->user->username ?: $message->replyTo->user->name }}:
-                                        {{ Str::limit($message->replyTo->body, 60) }}
-                                    </p>
-                                @endif
+                        @foreach ($conversation->visibleMessagesFor(auth()->user()) as $message)
+                            <div class="message-row {{ $message->user_id === auth()->id() ? 'is-mine' : '' }}">
+                                <div class="message-bubble {{ $message->user_id === auth()->id() ? 'is-mine' : '' }}"
+                                    data-message-id="{{ $message->id }}">
+                                    @if ($message->replyTo)
+                                        <p class="text-xs text-gray-500 border-l-2 border-gray-300 pl-2 mb-2">
+                                            {{ $message->replyTo->user->username ?: $message->replyTo->user->name }}:
+                                            {{ Str::limit($message->replyTo->body, 60) }}
+                                        </p>
+                                    @endif
 
-                                @if ($message->body)
-                                    <p class="text-gray-900 whitespace-pre-line">{{ $message->body }}</p>
-                                @endif
+                                    @if ($message->body)
+                                        <p class="text-gray-900 whitespace-pre-line">{{ $message->body }}</p>
+                                    @endif
 
-                                @if ($message->image_path)
-                                    <img src="{{ Storage::url($message->image_path) }}" alt="Message picture"
-                                        class="mt-2 max-w-full h-auto">
-                                @endif
+                                    @if ($message->image_path)
+                                        <img src="{{ Storage::url($message->image_path) }}" alt="Message picture"
+                                            class="mt-2 max-w-full h-auto">
+                                    @endif
 
-                                <div class="flex items-center justify-between mt-2">
-                                    <span class="text-xs text-gray-500">{{ $message->created_at->format('d/m/Y H:i') }}</span>
-                                    <button type="button" class="text-xs text-indigo-600 underline"
-                                        data-reply-to="{{ $message->id }}"
-                                        data-reply-label="{{ Str::limit($message->body, 40) }}">Reply</button>
+                                    <div class="flex items-center justify-between gap-4 mt-2">
+                                        <span class="text-xs text-gray-500">{{ $message->created_at->format('d/m/Y H:i') }}</span>
+                                        <button type="button" class="text-xs text-indigo-600 underline"
+                                            data-reply-to="{{ $message->id }}"
+                                            data-reply-label="{{ Str::limit($message->body, 40) }}">Reply</button>
+                                    </div>
                                 </div>
                             </div>
                         @endforeach
                     </div>
 
                     <form method="POST" action="{{ route('messages.reply', $conversation) }}"
-                        enctype="multipart/form-data" class="mt-4 space-y-2">
+                        enctype="multipart/form-data" class="mt-8 space-y-2">
                         @csrf
                         <input type="hidden" name="reply_to_id" value="" data-reply-input>
 
@@ -190,11 +243,19 @@
                             class="w-full px-4 py-2 border focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ old('body') }}</textarea>
                         <x-input-error :messages="$errors->get('body')" />
 
-                        <input type="file" name="image" accept="image/*" class="text-sm">
+                        <input type="file" name="image" accept="image/*" class="hidden" id="message-image"
+                            data-image-input>
                         <x-input-error :messages="$errors->get('image')" />
 
-                        <button type="submit"
-                            class="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600">Send</button>
+                        <div class="flex items-center justify-end gap-3">
+                            <span class="text-sm text-gray-500" data-image-name hidden></span>
+
+                            <label for="message-image" class="cursor-pointer text-xl text-gray-500 hover:text-gray-700"
+                                title="Add a picture" aria-label="Add a picture">&#128206;</label>
+
+                            <button type="submit"
+                                class="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600">Send</button>
+                        </div>
                     </form>
 
                     <script>
@@ -215,6 +276,14 @@
                             document.querySelector('[data-reply-cancel]').addEventListener('click', function () {
                                 input.value = '';
                                 preview.hidden = true;
+                            });
+
+                            const imageInput = document.querySelector('[data-image-input]');
+                            const imageName = document.querySelector('[data-image-name]');
+
+                            imageInput.addEventListener('change', function () {
+                                imageName.textContent = imageInput.files.length ? imageInput.files[0].name : '';
+                                imageName.hidden = imageInput.files.length === 0;
                             });
 
                             thread.scrollTop = thread.scrollHeight;

@@ -51,7 +51,19 @@ class User extends Authenticatable
 
     public function conversations(): BelongsToMany
     {
-        return $this->belongsToMany(Conversation::class)->withPivot('last_read_at')->withTimestamps();
+        return $this->belongsToMany(Conversation::class)->withPivot(['last_read_at', 'cleared_at'])->withTimestamps();
+    }
+
+    /**
+     * How many conversations have messages this user has not read yet.
+     */
+    public function unreadConversationCount(): int
+    {
+        return $this->conversations()
+            ->with(['participants', 'messages'])
+            ->get()
+            ->filter(fn (Conversation $conversation) => $conversation->unreadCountFor($this) > 0)
+            ->count();
     }
 
     public function messages(): HasMany

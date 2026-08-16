@@ -167,3 +167,58 @@ test('the new conversation page only lists people you follow', function () {
         ->assertSee('Gevolgde Vriend')
         ->assertDontSee('Onbekende Persoon');
 });
+
+test('deleting a conversation only hides it for you', function () {
+    $user = User::factory()->create();
+    $partner = User::factory()->create();
+    $conversation = conversationBetween($user, $partner);
+    $conversation->messages()->create(['user_id' => $partner->id, 'body' => 'Oud bericht']);
+
+    $this->actingAs($user)->delete(route('messages.destroy', $conversation))
+        ->assertRedirect(route('messages'));
+
+    $this->actingAs($user)->get(route('messages'))
+        ->assertOk()
+        ->assertDontSee('Oud bericht');
+
+    $this->actingAs($partner)->get(route('messages'))
+        ->assertOk()
+        ->assertSee('Oud bericht');
+});
+
+test('a deleted conversation comes back empty with a new message', function () {
+    $user = User::factory()->create();
+    $partner = User::factory()->create();
+    $conversation = conversationBetween($user, $partner);
+    $conversation->messages()->create(['user_id' => $partner->id, 'body' => 'Oud bericht']);
+
+    $this->actingAs($user)->delete(route('messages.destroy', $conversation));
+
+    $this->travel(1)->minute();
+    $this->actingAs($partner)->post(route('messages.reply', $conversation), ['body' => 'Nieuw bericht']);
+
+    $this->actingAs($user)->get(route('messages.show', $conversation))
+        ->assertOk()
+        ->assertSee('Nieuw bericht')
+        ->assertDontSee('Oud bericht');
+});
+
+test('only a participant can delete a conversation', function () {
+    $user = User::factory()->create();
+    $conversation = conversationBetween(User::factory()->create(), User::factory()->create());
+
+    $this->actingAs($user)->delete(route('messages.destroy', $conversation))->assertForbidden();
+});
+
+test('the navbar shows how many conversations have new messages', function () {
+    $user = User::factory()->create();
+    $partner = User::factory()->create();
+    $conversation = conversationBetween($user, $partner);
+    $conversation->messages()->create(['user_id' => $partner->id, 'body' => 'Hallo']);
+
+    $this->actingAs($user)->get(route('home'))
+        ->assertOk()
+        ->assertSee('nav-count-badge', false);
+
+    expect($user->unreadConversationCount())->toBe(1);
+});

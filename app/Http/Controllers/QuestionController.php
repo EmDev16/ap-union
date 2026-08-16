@@ -3,16 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Models\Question;
-use Illuminate\Http\RedirectResponse;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class QuestionController extends Controller
 {
+    /**
+     * How far back open questions are shown.
+     */
+    public const OPEN_MONTHS = 6;
+
+    /**
+     * Questions of the last months that the user has not answered yet.
+     *
+     * @return Builder<Question>
+     */
+    public static function openFor(User $user): Builder
+    {
+        return Question::with('user')
+            ->where('created_at', '>=', now()->subMonths(self::OPEN_MONTHS))
+            ->whereDoesntHave('answers', fn (Builder $query) => $query->where('user_id', $user->id))
+            ->orderBy('created_at', 'desc');
+    }
+
     public function index(Request $request): View
     {
         return view('questions.index', [
-            'questions' => Question::with('user')->orderBy('created_at', 'desc')->get(),
+            'questions' => self::openFor($request->user())->get(),
+            'months' => self::OPEN_MONTHS,
         ]);
     }
 
@@ -22,17 +42,5 @@ class QuestionController extends Controller
             'question' => $question->load('user'),
             'answer' => $question->answerBy($request->user()),
         ]);
-    }
-
-    public function store(Request $request): RedirectResponse
-    {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
-        ]);
-
-        $request->user()->questions()->create($validated);
-
-        return to_route('questions.index')->with('status', 'Your question has been posted.');
     }
 }

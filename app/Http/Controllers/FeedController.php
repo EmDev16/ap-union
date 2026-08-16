@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use App\Models\Question;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class FeedController extends Controller
@@ -16,11 +15,14 @@ class FeedController extends Controller
 
         return view('welcome', [
             'posts' => $this->followingPosts(),
-            'notifications' => auth()->user()->notifications()
+            'notifications' => auth()->user()->unreadNotifications()
                 ->where('created_at', '>=', now()->subMonths(NotificationController::HISTORY_MONTHS))
                 ->limit(5)
                 ->get(),
-            'questions' => Question::orderBy('created_at', 'desc')->limit(5)->get(),
+            'notificationCount' => auth()->user()->unreadNotifications()
+                ->where('created_at', '>=', now()->subMonths(NotificationController::HISTORY_MONTHS))
+                ->count(),
+            'questions' => QuestionController::openFor(auth()->user())->limit(5)->get(),
         ]);
     }
 

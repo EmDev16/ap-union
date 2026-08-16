@@ -18,10 +18,11 @@
                     <p class="text-sm text-gray-400">{{ $notification->created_at->format('d/m/Y H:i') }}</p>
                 </div>
 
-                <form method="POST" action="{{ route('notifications.destroy', $notification->id) }}">
+                <form method="POST" action="{{ route('notifications.destroy', $notification->id) }}"
+                    onsubmit="return confirm('Delete this notification for good?');">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="text-gray-500 hover:text-gray-900" title="Delete this notification"
+                    <button type="submit" class="text-red-600 hover:text-red-800" title="Delete this notification"
                         aria-label="Delete this notification">&times;</button>
                 </form>
             </li>

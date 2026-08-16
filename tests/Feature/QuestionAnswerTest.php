@@ -21,15 +21,27 @@ test('guests cannot open the question pages', function () {
     $this->get(route('answers.index'))->assertRedirect(route('login'));
 });
 
-test('a member can ask a question', function () {
+test('the questions page only lists open questions of the last six months', function () {
     $user = User::factory()->create();
+    Question::factory()->create(['title' => 'Open vraag']);
+    $answered = Question::factory()->create(['title' => 'Beantwoorde vraag']);
+    Question::factory()->create([
+        'title' => 'Oude vraag',
+        'created_at' => now()->subMonths(7),
+    ]);
 
-    $this->actingAs($user)->post(route('questions.store'), [
-        'title' => 'Wat is jouw favoriete boek?',
-        'description' => 'En waarom?',
-    ])->assertRedirect(route('questions.index'));
+    Answer::factory()->create(['question_id' => $answered->id, 'user_id' => $user->id]);
 
-    expect($user->questions()->count())->toBe(1);
+    $this->actingAs($user)->get(route('questions.index'))
+        ->assertOk()
+        ->assertSee('Open vraag')
+        ->assertDontSee('Beantwoorde vraag')
+        ->assertDontSee('Oude vraag');
+
+    $this->actingAs($user)->get(route('home'))
+        ->assertOk()
+        ->assertDontSee('Beantwoorde vraag')
+        ->assertDontSee('Oude vraag');
 });
 
 test('a member can answer a question and find it back', function () {
