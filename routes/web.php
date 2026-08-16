@@ -15,6 +15,7 @@ use App\Http\Controllers\FeedController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\MemberSearchController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -30,11 +31,9 @@ Route::get('/explore', [FeedController::class, 'explore'])->name('explore');
 
 Route::get('/messages', function () {
     return view('messages');
-});
+})->name('messages');
 
-Route::get('/search', function () {
-    return view('search');
-});
+Route::get('/search', [MemberSearchController::class, 'index'])->name('search');
 
 Route::get('/users/{user}', [ProfileController::class, 'show'])->name('profile.show');
 

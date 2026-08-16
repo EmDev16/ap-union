@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use Illuminate\Http\Request;
 
 class FeedController extends Controller
 {
@@ -20,9 +19,15 @@ class FeedController extends Controller
 
     public function explore()
     {
-        $posts = Post::with('user', 'media', 'comments.user', 'comments.replies', 'likes')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $query = Post::with('user', 'media', 'comments.user', 'comments.replies', 'likes');
+
+        if (! auth()->check()) {
+            $posts = $query->inRandomOrder()->limit(10)->get();
+
+            return view('posts.explore', compact('posts'));
+        }
+
+        $posts = $query->orderBy('created_at', 'desc')->paginate(10);
 
         return view('posts.explore', compact('posts'));
     }
