@@ -20,6 +20,20 @@
             </style>
         @endif
         <style>
+            *,
+            *::before,
+            *::after {
+                border-radius: 0 !important;
+            }
+
+            .rounded-full,
+            .nav-count-badge,
+            .home-count-badge,
+            .message-avatar,
+            .message-unread {
+                border-radius: 9999px !important;
+            }
+
             :root {
                 --page-content-width: 782.4px;
                 --page-wide-width: 1190.4px;

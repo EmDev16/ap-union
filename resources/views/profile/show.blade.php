@@ -45,8 +45,8 @@
                             <div class="flex flex-wrap gap-2 mt-3">
                                 @foreach ($user->interests as $interest)
                                     <a href="{{ route('search', ['q' => $interest->name]) }}"
-                                        class="rounded-full border border-gray-300 px-3 py-1 text-xs text-gray-700 hover:bg-gray-100"
-                                        style="border-radius:9999px;white-space:nowrap;">{{ $interest->name }}</a>
+                                        class="border border-gray-300 px-3 py-1 text-xs text-gray-700 hover:bg-gray-100"
+                                        style="white-space:nowrap;">{{ $interest->name }}</a>
                                 @endforeach
                             </div>
                         @endif
@@ -55,19 +55,13 @@
 
                 @auth
                     @if ($user->is(auth()->user()))
-                        <div class="flex flex-col items-stretch gap-2">
+                        <div class="flex items-center gap-2">
                             @if (auth()->user()->isAdmin())
-                                <a href="{{ route('admin.questions.create') }}" class="inline-block rounded bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700 text-center whitespace-nowrap">Create Question</a>
-                                <a href="{{ route('admin.questions.index') }}" class="inline-block rounded bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700 text-center whitespace-nowrap">My Questions</a>
+                                <a href="{{ route('admin.questions.create') }}" class="inline-block bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700 text-center whitespace-nowrap">Create Question</a>
                             @else
-                                <a href="{{ route('posts.create') }}" class="inline-block rounded bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700 text-center whitespace-nowrap">Create Post</a>
-                                <a href="{{ route('posts.showcase') }}" class="inline-block rounded bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700 text-center whitespace-nowrap">Choose Visible Posts</a>
-                                <a href="{{ route('answers.index') }}" class="inline-block rounded bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700 text-center whitespace-nowrap">My Answers</a>
+                                <a href="{{ route('posts.create') }}" class="inline-block bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700 text-center whitespace-nowrap">Create Post</a>
                             @endif
-                            <a href="{{ route('follows.requests') }}" class="inline-block rounded bg-gray-300 px-4 py-2 text-gray-900 font-semibold hover:bg-gray-400 text-center whitespace-nowrap">
-                                Follow Requests ({{ auth()->user()->followRequests()->count() }})
-                            </a>
-                            <a href="{{ route('profile.edit') }}" class="inline-block rounded bg-gray-300 px-4 py-2 text-gray-900 font-semibold hover:bg-gray-400 text-center whitespace-nowrap">Edit Profile</a>
+                            <a href="{{ route('profile.edit') }}" class="inline-block border border-gray-300 px-4 py-2 text-gray-900 font-semibold hover:bg-gray-100 text-center whitespace-nowrap">Edit Profile</a>
                         </div>
                     @elseif (auth()->user()->isAdmin() === $user->isAdmin())
                         <div>
@@ -76,25 +70,44 @@
                                     onsubmit="return confirm('{{ $user->username ?: $user->name }} niet meer volgen?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="rounded bg-gray-300 px-6 py-2 text-gray-900 font-semibold hover:bg-gray-400 whitespace-nowrap">Following</button>
+                                    <button type="submit" class="border border-gray-300 px-6 py-2 text-gray-900 font-semibold hover:bg-gray-100 whitespace-nowrap">Following</button>
                                 </form>
                             @elseif (auth()->user()->hasPendingRequestFor($user))
                                 <form action="{{ route('users.unfollow', $user) }}" method="POST"
                                     onsubmit="return confirm('Je volgverzoek intrekken?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="rounded bg-gray-300 px-6 py-2 text-gray-900 font-semibold hover:bg-gray-400 whitespace-nowrap">Requested</button>
+                                    <button type="submit" class="border border-gray-300 px-6 py-2 text-gray-900 font-semibold hover:bg-gray-100 whitespace-nowrap">Requested</button>
                                 </form>
                             @else
                                 <form action="{{ route('users.follow', $user) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="rounded bg-indigo-600 px-6 py-2 text-white font-semibold hover:bg-indigo-700 whitespace-nowrap">Follow</button>
+                                    <button type="submit" class="bg-indigo-600 px-6 py-2 text-white font-semibold hover:bg-indigo-700 whitespace-nowrap">Follow</button>
                                 </form>
                             @endif
                         </div>
                     @endif
                 @endauth
             </div>
+
+            @auth
+                @if ($user->is(auth()->user()))
+                    <div class="mt-4 border-t border-gray-200 pt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+                        @if (auth()->user()->isAdmin())
+                            <a href="{{ route('admin.questions.index') }}" class="text-gray-700 hover:underline whitespace-nowrap">My questions</a>
+                        @else
+                            <a href="{{ route('posts.showcase') }}" class="text-gray-700 hover:underline whitespace-nowrap">Choose visible posts</a>
+                            <a href="{{ route('answers.index') }}" class="text-gray-700 hover:underline whitespace-nowrap">My answers</a>
+                        @endif
+                        <a href="{{ route('follows.requests') }}" class="text-gray-700 hover:underline whitespace-nowrap">
+                            Follow requests
+                            @if (auth()->user()->followRequests()->count() > 0)
+                                <span class="nav-count-badge ml-1">{{ auth()->user()->followRequests()->count() }}</span>
+                            @endif
+                        </a>
+                    </div>
+                @endif
+            @endauth
         </div>
 
         @if (session('status'))
