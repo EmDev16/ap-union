@@ -16,14 +16,14 @@ class CommentController extends Controller
             'parent_id' => 'nullable|exists:comments,id',
         ]);
 
-        $post->comments()->create([
+        $comment = $post->comments()->create([
             'user_id' => auth()->id(),
             'content' => $validated['content'],
             'parent_id' => $validated['parent_id'] ?? null,
         ]);
 
         if ($post->user_id !== auth()->id()) {
-            $post->user->notify(new PostCommented(auth()->user(), $post));
+            $post->user->notify(new PostCommented(auth()->user(), $comment));
         }
 
         return back();

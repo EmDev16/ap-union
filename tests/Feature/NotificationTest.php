@@ -80,6 +80,28 @@ test('the home page shows the number of new notifications', function () {
         ->assertSee(route('notifications.index'));
 });
 
+test('every notification links to the right place', function () {
+    $author = User::factory()->create();
+    $user = User::factory()->create();
+    $post = Post::factory()->create(['user_id' => $author->id]);
+
+    $this->actingAs($user)->post(route('users.follow', $author));
+    $this->actingAs($user)->post(route('posts.like', $post));
+    $this->actingAs($user)->post(route('comments.store', $post), ['content' => 'Mooi bericht']);
+
+    $comment = $post->comments()->firstOrFail();
+    $urls = $author->notifications()->get()->pluck('data.url')->all();
+
+    expect($urls)->toContain(route('profile.show', $user))
+        ->toContain(route('profile.show', $author).'#post-'.$post->id)
+        ->toContain(route('profile.show', $author).'#comment-'.$comment->id);
+
+    $this->actingAs($author)->get(route('profile.show', $author))
+        ->assertOk()
+        ->assertSee('id="post-'.$post->id.'"', false)
+        ->assertSee('id="comment-'.$comment->id.'"', false);
+});
+
 test('you cannot delete someone elses notification', function () {
     $user = User::factory()->create();
     $other = User::factory()->create();

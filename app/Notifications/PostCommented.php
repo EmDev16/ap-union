@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\Post;
+use App\Models\Comment;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
@@ -11,7 +11,7 @@ class PostCommented extends Notification
 {
     use Queueable;
 
-    public function __construct(public User $actor, public Post $post) {}
+    public function __construct(public User $actor, public Comment $comment) {}
 
     /**
      * @return array<int, string>
@@ -29,7 +29,7 @@ class PostCommented extends Notification
         return [
             'title' => 'New comment',
             'description' => $this->actorName().' commented on your post.',
-            'url' => route('profile.show', $notifiable),
+            'url' => route('profile.show', $notifiable).'#comment-'.$this->comment->id,
         ];
     }
 

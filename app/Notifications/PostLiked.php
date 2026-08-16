@@ -29,7 +29,7 @@ class PostLiked extends Notification
         return [
             'title' => 'New like',
             'description' => $this->actorName().' liked your post.',
-            'url' => route('profile.show', $notifiable),
+            'url' => route('profile.show', $notifiable).'#post-'.$this->post->id,
         ];
     }
 
