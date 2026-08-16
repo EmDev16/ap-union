@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\ContactAnswered;
 use App\Models\Contact;
+use App\Models\User;
+use App\Notifications\ContactReplied;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -45,6 +47,8 @@ class ContactManagementController extends Controller
         ]);
 
         Mail::to($contact->email)->send(new ContactAnswered($contact));
+
+        User::where('email', $contact->email)->first()?->notify(new ContactReplied($contact));
 
         return back()->with('status', 'Antwoord verstuurd.');
     }

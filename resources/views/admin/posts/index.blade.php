@@ -26,7 +26,8 @@
                     <form method="POST" action="{{ route('admin.posts.unreview', $post) }}">
                         @csrf
                         @method('DELETE')
-                        <button class="rounded bg-indigo-600 px-4 py-2 text-white">Terug online zetten</button>
+                        <button class="rounded bg-indigo-600 px-4 py-2 text-white font-semibold"
+                            style="background-color:#4f46e5;color:#ffffff;">Terug online zetten</button>
                     </form>
 
                     @if (! $post->isRemoved())
@@ -34,14 +35,16 @@
                             onsubmit="return confirm('Deze post verwijderen? De auteur kan nog een laatste beroep doen.');">
                             @csrf
                             @method('DELETE')
-                            <button class="rounded bg-red-700 px-4 py-2 text-white">Post verwijderen</button>
+                            <button class="rounded bg-red-700 px-4 py-2 text-white font-semibold"
+                                style="background-color:#b91c1c;color:#ffffff;">Post verwijderen</button>
                         </form>
                     @elseif (! $post->hasOpenAppeal() && $post->nextAppealStage() === null)
                         <form method="POST" action="{{ route('admin.posts.purge', $post) }}"
                             onsubmit="return confirm('Deze post definitief wissen? Dit kan niet ongedaan gemaakt worden.');">
                             @csrf
                             @method('DELETE')
-                            <button class="rounded bg-red-700 px-4 py-2 text-white">Definitief wissen</button>
+                            <button class="rounded bg-red-700 px-4 py-2 text-white font-semibold"
+                                style="background-color:#b91c1c;color:#ffffff;">Definitief wissen</button>
                         </form>
                     @endif
                 </div>

@@ -30,6 +30,9 @@ Route::get('/', [FeedController::class, 'home'])->name('home');
 
 Route::get('/contact', [ContactController::class, 'create'])->name('contact.create');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+Route::get('/contact/{contact}', [ContactController::class, 'show'])
+    ->middleware('auth')
+    ->name('contact.show');
 
 Route::get('/news', [NewsController::class, 'index'])->name('news.index');
 Route::get('/news/{news}', [NewsController::class, 'show'])->name('news.show');

@@ -202,3 +202,31 @@ test('an admin sees the review list and can put a post back online', function ()
     $this->actingAs($admin)->delete(route('admin.posts.unreview', $post))->assertRedirect();
     expect($post->fresh()->isUnderReview())->toBeFalse();
 });
+
+test('a member is notified in the app when an admin answers the contact message', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $member = User::factory()->create(['is_admin' => false]);
+    $contact = Contact::create([
+        'name' => $member->name,
+        'email' => $member->email,
+        'type' => 'question',
+        'subject' => 'Mijn vraag',
+        'message' => 'Hoe werkt dit?',
+    ]);
+
+    $this->actingAs($admin)
+        ->post(route('admin.contacts.reply', $contact), ['reply' => 'Zo werkt het.'])
+        ->assertRedirect();
+
+    $notification = $member->fresh()->notifications()->firstOrFail();
+
+    expect($notification->data['url'])->toBe(route('contact.show', $contact));
+
+    $this->actingAs($member)->get(route('contact.show', $contact))
+        ->assertOk()
+        ->assertSee('Zo werkt het.');
+
+    $this->actingAs(User::factory()->create(['is_admin' => false]))
+        ->get(route('contact.show', $contact))
+        ->assertForbidden();
+});
