@@ -16,7 +16,10 @@ class FeedController extends Controller
 
         return view('welcome', [
             'posts' => $this->followingPosts(),
-            'notifications' => auth()->user()->notifications()->limit(5)->get(),
+            'notifications' => auth()->user()->notifications()
+                ->where('created_at', '>=', now()->subMonths(NotificationController::HISTORY_MONTHS))
+                ->limit(5)
+                ->get(),
             'questions' => Question::orderBy('created_at', 'desc')->limit(5)->get(),
         ]);
     }

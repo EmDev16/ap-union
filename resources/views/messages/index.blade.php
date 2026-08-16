@@ -101,6 +101,10 @@
                         @php
                             $partner = $item->partnerFor(auth()->user());
                             $unread = $item->unreadCountFor(auth()->user());
+                            $latest = $item->latestMessage;
+                            $preview = $latest === null
+                                ? 'No messages yet'
+                                : (filled($latest->body) ? Str::limit($latest->body, 40) : 'Picture');
                         @endphp
                         <li class="p-4 border bg-white/5 {{ $conversation && $conversation->is($item) ? 'border-indigo-500' : '' }}">
                             <a href="{{ route('messages.show', $item) }}" class="flex items-center justify-between gap-4">
@@ -109,7 +113,7 @@
                                         {{ $partner?->username ?: $partner?->name }}
                                     </span>
                                     <span class="text-gray-500 text-sm">
-                                        {{ Str::limit($item->latestMessage?->body ?? 'No messages yet', 40) }}
+                                        {{ $preview }}
                                     </span>
                                 </span>
                                 @if ($unread > 0)

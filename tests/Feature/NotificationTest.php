@@ -76,4 +76,9 @@ test('the notifications page only shows the last three months', function () {
         ->assertOk()
         ->assertSee('Recent notification')
         ->assertDontSee('Old notification');
+
+    $this->actingAs($user)->get(route('home'))
+        ->assertOk()
+        ->assertSee('Recent notification')
+        ->assertDontSee('Old notification');
 });

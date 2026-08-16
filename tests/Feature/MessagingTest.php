@@ -101,6 +101,11 @@ test('a member can send a picture', function () {
     $message = $conversation->messages()->first();
     expect($message->image_path)->not->toBeNull();
     Storage::disk('public')->assertExists($message->image_path);
+
+    $this->actingAs($user)->get(route('messages'))
+        ->assertOk()
+        ->assertSee('Picture')
+        ->assertDontSee('No messages yet');
 });
 
 test('a member can reply to a specific message', function () {
