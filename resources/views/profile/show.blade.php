@@ -3,22 +3,36 @@
         <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
             <div class="flex items-start justify-between gap-4">
                 <div class="flex items-start gap-4">
-                    @if ($user->profile_photo)
-                        <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="{{ $user->name }}" class="h-24 w-24 rounded-full object-cover">
+                    @auth
+                        @if ($user->profile_photo)
+                            <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="{{ $user->name }}" class="h-24 w-24 rounded-full object-cover">
+                        @else
+                            <div class="h-24 w-24 bg-gray-300 rounded-full"></div>
+                        @endif
                     @else
                         <div class="h-24 w-24 bg-gray-300 rounded-full"></div>
-                    @endif
+                    @endauth
 
                     <div>
                         <h1 class="text-2xl font-bold text-gray-900">{{ $user->username ?: $user->name }}</h1>
-                        @if ($user->username)
-                            <p class="text-gray-600">{{ $user->name }}</p>
-                        @endif
+                        @auth
+                            @if ($user->username)
+                                <p class="text-gray-600">{{ $user->name }}</p>
+                            @endif
+                        @endauth
 
                         @if ($user->about_me)
                             <p class="text-gray-700 mt-2">{{ $user->about_me }}</p>
                         @endif
 
+                        @guest
+                            <div class="flex gap-6 mt-3 text-sm">
+                                <div>
+                                    <span class="font-bold">{{ $user->posts_count }}</span>
+                                    <span class="text-gray-600">Posts</span>
+                                </div>
+                            </div>
+                        @else
                         <div class="flex gap-6 mt-3 text-sm">
                             <div>
                                 <span class="font-bold">{{ $user->followers()->count() }}</span>
@@ -33,6 +47,7 @@
                                 <span class="text-gray-600">Posts</span>
                             </div>
                         </div>
+                        @endguest
                     </div>
                 </div>
 
@@ -68,11 +83,24 @@
 
         <section>
             <h2 class="text-xl font-bold mb-6">Posts</h2>
-            @forelse ($user->posts()->with('media', 'comments.user', 'comments.replies', 'likes')->orderBy('created_at', 'desc')->get() as $post)
-                @include('posts.card', ['post' => $post])
-            @empty
-                <p>No posts yet.</p>
-            @endforelse
+            @guest
+                <div class="border border-gray-300 rounded-lg p-4 bg-white">
+                    <p class="font-semibold text-gray-900">This account is private</p>
+                    <p class="text-gray-700 mt-2">
+                        <a href="{{ route('login') }}" class="underline">Log in</a>
+                        @if (Route::has('register'))
+                            or <a href="{{ route('register') }}" class="underline">create an account</a>
+                        @endif
+                        to see the posts of this member.
+                    </p>
+                </div>
+            @else
+                @forelse ($user->posts()->with('media', 'comments.user', 'comments.replies', 'likes')->orderBy('created_at', 'desc')->get() as $post)
+                    @include('posts.card', ['post' => $post])
+                @empty
+                    <p>No posts yet.</p>
+                @endforelse
+            @endguest
         </section>
     </div>
 </x-layout>

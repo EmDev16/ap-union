@@ -162,32 +162,71 @@
                 </p>
             </div>
 
-            <ul class="home-list">
-                @foreach ($notifications as $notification)
-                    <li class="home-side-box">
-                        <h3 class="home-item-title">{{ data_get($notification, 'title') }}</h3>
-                        <p class="home-small-text">{{ data_get($notification, 'description') }}</p>
-                    </li>
-                @endforeach
-            </ul>
+            @guest
+                <div class="home-side-box">
+                    <h3 class="home-item-title">Nothing here yet</h3>
+                    <p class="home-small-text">
+                        Sign in to get notified when someone follows you or reacts to your posts.
+                    </p>
+                </div>
+            @else
+                <ul class="home-list">
+                    @foreach ($notifications as $notification)
+                        <li class="home-side-box">
+                            <h3 class="home-item-title">{{ data_get($notification, 'title') }}</h3>
+                            <p class="home-small-text">{{ data_get($notification, 'description') }}</p>
+                        </li>
+                    @endforeach
+                </ul>
+            @endguest
         </aside>
 
         <main class="home-main">
-            <div>
-                <h1 class="home-main-title">Posts</h1>
-                <p class="home-muted">
-                    Posts from accounts you follow, in chronological order.
-                </p>
-            </div>
+            @guest
+                <div>
+                    <h1 class="home-main-title">Welcome to AP Union</h1>
+                    <p class="home-muted">
+                        AP Union is a place for conversation and interest: you follow the people you care
+                        about and read their posts in chronological order, without an algorithm in between.
+                    </p>
+                </div>
 
-            <ul class="home-post-list">
-                @foreach ($posts as $post)
-                    <li class="home-post-box">
-                        <h3 class="home-post-title">{{ data_get($post, 'title') }}</h3>
-                        <p class="home-muted">{{ data_get($post, 'description') }}</p>
-                    </li>
-                @endforeach
-            </ul>
+                <div class="home-post-box">
+                    <h2 class="home-post-title">What you can do with an account</h2>
+                    <ul class="home-muted" style="list-style: disc; padding-left: 20px;">
+                        <li>Follow members and read their posts in your own chronological feed.</li>
+                        <li>Post your own updates, comment on others and answer their questions.</li>
+                        <li>Message other members and see your notifications.</li>
+                    </ul>
+                    <p class="home-muted">
+                        Without an account you can still explore a sample of the posts, search members, read the FAQ
+                        and the latest news, and contact us.
+                    </p>
+                    <p class="home-muted">
+                        <a href="{{ route('login') }}" class="underline">Log in</a>
+                        @if (Route::has('register'))
+                            or <a href="{{ route('register') }}" class="underline">create an account</a>
+                        @endif
+                        to get started.
+                    </p>
+                </div>
+            @else
+                <div>
+                    <h1 class="home-main-title">Posts</h1>
+                    <p class="home-muted">
+                        Posts from accounts you follow, in chronological order.
+                    </p>
+                </div>
+
+                <ul class="home-post-list">
+                    @foreach ($posts as $post)
+                        <li class="home-post-box">
+                            <h3 class="home-post-title">{{ data_get($post, 'title') }}</h3>
+                            <p class="home-muted">{{ data_get($post, 'description') }}</p>
+                        </li>
+                    @endforeach
+                </ul>
+            @endguest
         </main>
 
         <aside class="home-sidebar">
@@ -198,14 +237,23 @@
                 </p>
             </div>
 
-            <ul class="home-list">
-                @foreach ($questions as $question)
-                    <li class="home-side-box">
-                        <h3 class="home-item-title">{{ data_get($question, 'title') }}</h3>
-                        <p class="home-small-text">{{ data_get($question, 'description') }}</p>
-                    </li>
-                @endforeach
-            </ul>
+            @guest
+                <div class="home-side-box">
+                    <h3 class="home-item-title">Join the discussion</h3>
+                    <p class="home-small-text">
+                        Questions from the community appear here once you are signed in.
+                    </p>
+                </div>
+            @else
+                <ul class="home-list">
+                    @foreach ($questions as $question)
+                        <li class="home-side-box">
+                            <h3 class="home-item-title">{{ data_get($question, 'title') }}</h3>
+                            <p class="home-small-text">{{ data_get($question, 'description') }}</p>
+                        </li>
+                    @endforeach
+                </ul>
+            @endguest
         </aside>
     </div>
 </x-layout>

@@ -8,6 +8,20 @@
 
     <div>
         <h2 class="text-xl font-semibold">Your Conversations</h2>
+
+        @guest
+            <div class="mt-4 p-4 border bg-white/5">
+                <h3 class="text-lg font-medium">Sign in to start a conversation</h3>
+                <p class="text-gray-600 mt-2">
+                    Your conversations appear here once you are signed in.
+                    <a href="{{ route('login') }}" class="underline">Log in</a>
+                    @if (Route::has('register'))
+                        or <a href="{{ route('register') }}" class="underline">create an account</a>
+                    @endif
+                    to message other members.
+                </p>
+            </div>
+        @else
         <x-dropdown align="left" width="48">
             <x-slot name="trigger">
                 <button
@@ -41,5 +55,6 @@
                 <p class="text-gray-400">Last message: "Thanks for your help!"</p>
             </li>
         </ul>
-
+        @endguest
+    </div>
 </x-layout>

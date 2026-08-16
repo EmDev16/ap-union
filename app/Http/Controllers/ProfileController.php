@@ -28,7 +28,11 @@ class ProfileController extends Controller
      */
     public function show(User $user): View
     {
-        $user->load(['posts.media']);
+        if (auth()->check()) {
+            $user->load(['posts.media']);
+        } else {
+            $user->loadCount('posts');
+        }
 
         return view('profile.show', [
             'user' => $user,
