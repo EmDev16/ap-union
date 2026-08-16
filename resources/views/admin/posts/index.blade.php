@@ -28,6 +28,22 @@
                         @method('DELETE')
                         <button class="rounded bg-indigo-600 px-4 py-2 text-white">Terug online zetten</button>
                     </form>
+
+                    @if (! $post->isRemoved())
+                        <form method="POST" action="{{ route('admin.posts.remove', $post) }}"
+                            onsubmit="return confirm('Deze post verwijderen? De auteur kan nog een laatste beroep doen.');">
+                            @csrf
+                            @method('DELETE')
+                            <button class="rounded bg-red-700 px-4 py-2 text-white">Post verwijderen</button>
+                        </form>
+                    @elseif (! $post->hasOpenAppeal() && $post->nextAppealStage() === null)
+                        <form method="POST" action="{{ route('admin.posts.purge', $post) }}"
+                            onsubmit="return confirm('Deze post definitief wissen? Dit kan niet ongedaan gemaakt worden.');">
+                            @csrf
+                            @method('DELETE')
+                            <button class="rounded bg-red-700 px-4 py-2 text-white">Definitief wissen</button>
+                        </form>
+                    @endif
                 </div>
             </article>
         @empty

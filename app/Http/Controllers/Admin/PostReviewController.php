@@ -72,6 +72,51 @@ class PostReviewController extends Controller
         return back()->with('status', 'De post staat weer online.');
     }
 
+    /**
+     * Take a reviewed post offline, the author can still ask a last review.
+     */
+    public function remove(Request $request, Post $post): RedirectResponse
+    {
+        $this->authorize('review', $post);
+
+        if ($post->isRemoved()) {
+            return back()->with('status', 'Deze post is al verwijderd.');
+        }
+
+        $post->update(['removed_at' => now(), 'removed_by' => $request->user()->id]);
+
+        $conversation = $this->conversations->between($request->user(), $post->user);
+
+        $this->conversations->message(
+            $conversation,
+            $request->user(),
+            'Your post of '.$post->created_at->format('d/m/Y').' is against the rules and has been removed.'
+                .' You can ask one last review by another admin.',
+            Message::REVIEW_REMOVED,
+            $post
+        );
+
+        $post->user->notify(new PostUnderReview($request->user(), $post, $conversation));
+
+        return back()->with('status', 'De post is verwijderd.');
+    }
+
+    /**
+     * Wipe a removed post once no appeal is left.
+     */
+    public function purge(Request $request, Post $post): RedirectResponse
+    {
+        $this->authorize('review', $post);
+
+        if (! $post->isRemoved() || $post->hasOpenAppeal() || $post->nextAppealStage() !== null) {
+            return back()->with('error', 'Deze post kan nog niet definitief gewist worden.');
+        }
+
+        $post->delete();
+
+        return back()->with('status', 'De post is definitief gewist.');
+    }
+
     private function warnAuthor(User $admin, Post $post): void
     {
         $conversation = $this->conversations->between($admin, $post->user);

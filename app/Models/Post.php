@@ -73,6 +73,11 @@ class Post extends Model
         return $this->hasMany(PostAppeal::class)->orderBy('created_at');
     }
 
+    public function hasOpenAppeal(): bool
+    {
+        return $this->appeals()->whereNull('resolved_at')->exists();
+    }
+
     /**
      * The appeal the author may still file, or null when there is nothing left to contest.
      */

@@ -188,3 +188,38 @@ test('a removed post stays hidden for everybody', function () {
     $this->actingAs($author)->get(route('profile.show', $author))->assertDontSee('Verwijderde post');
     $this->actingAs($admin)->get(route('admin.posts.index'))->assertSee('Verwijderde post');
 });
+
+test('an admin removes a reviewed post from the review list and can wipe it later', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $author = User::factory()->create(['is_admin' => false]);
+    $post = reportedPost($admin, $author);
+
+    $this->actingAs($admin)->get(route('admin.posts.index'))->assertOk()->assertSee('Post verwijderen');
+
+    $this->actingAs($admin)->delete(route('admin.posts.remove', $post))->assertRedirect();
+
+    expect($post->fresh()->isRemoved())->toBeTrue()
+        ->and(Message::where('system_type', Message::REVIEW_REMOVED)->count())->toBe(1);
+
+    $this->actingAs($author)->post(route('posts.appeals.store', $post), ['reason' => 'Laatste beroep.']);
+
+    $this->actingAs($admin)->delete(route('admin.posts.purge', $post))->assertSessionHas('error');
+    expect(Post::whereKey($post->id)->exists())->toBeTrue();
+
+    $this->actingAs($admin)->patch(route('admin.appeals.update', PostAppeal::firstOrFail()), [
+        'response' => 'De verwijdering blijft.',
+        'decision' => PostAppeal::UPHELD,
+    ]);
+
+    $this->actingAs($admin)->delete(route('admin.posts.purge', $post))->assertRedirect();
+    expect(Post::whereKey($post->id)->exists())->toBeFalse();
+});
+
+test('a member cannot remove or wipe posts', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $author = User::factory()->create(['is_admin' => false]);
+    $post = reportedPost($admin, $author);
+
+    $this->actingAs($author)->delete(route('admin.posts.remove', $post))->assertForbidden();
+    $this->actingAs($author)->delete(route('admin.posts.purge', $post))->assertForbidden();
+});

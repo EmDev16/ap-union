@@ -55,6 +55,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('posts', [PostReviewController::class, 'index'])->name('posts.index');
     Route::post('posts/{post}/review', [PostReviewController::class, 'store'])->name('posts.review');
     Route::delete('posts/{post}/review', [PostReviewController::class, 'destroy'])->name('posts.unreview');
+    Route::delete('posts/{post}', [PostReviewController::class, 'remove'])->name('posts.remove');
+    Route::delete('posts/{post}/purge', [PostReviewController::class, 'purge'])->name('posts.purge');
     Route::get('appeals', [PostAppealManagementController::class, 'index'])->name('appeals.index');
     Route::patch('appeals/{appeal}', [PostAppealManagementController::class, 'update'])->name('appeals.update');
     Route::resource('faqs', FaqManagementController::class)->except('show');

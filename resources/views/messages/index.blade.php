@@ -178,12 +178,10 @@
                             </a>
                         </h2>
 
-                        <x-dropdown align="right" width="48">
-                            <x-slot name="trigger">
-                                <button class="text-gray-500 hover:text-gray-700" title="Conversation settings"
-                                    aria-label="Conversation settings">&#9881;</button>
-                            </x-slot>
-                            <x-slot name="content">
+                        <details class="relative">
+                            <summary class="cursor-pointer list-none text-gray-500 hover:text-gray-700"
+                                title="Conversation settings" aria-label="Conversation settings">&#9881;</summary>
+                            <div class="absolute right-0 z-10 mt-2 w-56 rounded border border-gray-200 bg-white shadow">
                                 <form method="POST" action="{{ route('messages.destroy', $conversation) }}"
                                     onsubmit="return confirm('Delete this conversation for you? The other person keeps it.');">
                                     @csrf
@@ -193,8 +191,8 @@
                                         Delete conversation for me
                                     </button>
                                 </form>
-                            </x-slot>
-                        </x-dropdown>
+                            </div>
+                        </details>
                     </div>
 
                     <div class="messages-thread mt-4" data-message-thread>
@@ -277,8 +275,10 @@
                         <div class="flex items-center justify-end gap-3">
                             <span class="text-sm text-gray-500" data-image-name hidden></span>
 
-                            <label for="message-image" class="cursor-pointer text-xl text-gray-500 hover:text-gray-700"
-                                title="Add a picture" aria-label="Add a picture">&#128206;</label>
+                            <label for="message-image" class="cursor-pointer text-gray-500 hover:text-gray-700"
+                                title="Add a picture" aria-label="Add a picture">
+                                <x-clip-icon class="w-6 h-6" />
+                            </label>
 
                             <button type="submit"
                                 class="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600">Send</button>

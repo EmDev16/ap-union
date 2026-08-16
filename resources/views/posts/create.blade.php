@@ -10,7 +10,10 @@
             <x-input-error :messages="$errors->get('content')" />
         </div>
         <div>
-            <label for="media" class="block text-gray-900 font-semibold mb-2">Photos or Videos (max. 5 files, 20 MB each)</label>
+            <label for="media" class="flex items-center gap-2 text-gray-900 font-semibold mb-2">
+                <x-clip-icon />
+                Photos or Videos (max. 5 files, 20 MB each)
+            </label>
             <input id="media" name="media[]" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" multiple class="block w-full border border-gray-400 bg-white p-2">
             <x-input-error :messages="$errors->get('media')" />
             <x-input-error :messages="$errors->get('media.*')" />
