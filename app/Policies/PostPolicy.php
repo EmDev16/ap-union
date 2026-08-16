@@ -17,6 +17,10 @@ class PostPolicy
 
     public function view(?User $user, Post $post): bool
     {
+        if ($post->isRemoved()) {
+            return $user !== null && $user->isAdmin();
+        }
+
         if (! $post->isUnderReview()) {
             return true;
         }

@@ -120,7 +120,7 @@
                     </p>
                 </div>
             @else
-                @forelse ($user->posts()->unless($user->is(auth()->user()) || auth()->user()->isAdmin(), fn ($query) => $query->published())->with('media', 'comments.user', 'comments.replies', 'likes')->orderBy('created_at', 'desc')->get() as $post)
+                @forelse ($user->posts()->unless(auth()->user()->isAdmin(), fn ($query) => $query->whereNull('removed_at'))->unless($user->is(auth()->user()) || auth()->user()->isAdmin(), fn ($query) => $query->published())->with('media', 'comments.user', 'comments.replies', 'likes')->orderBy('created_at', 'desc')->get() as $post)
                     @include('posts.card', ['post' => $post])
                 @empty
                     <p>No posts yet.</p>

@@ -10,7 +10,11 @@
                 <p class="text-sm text-gray-600">
                     {{ $post->user->username ?: $post->user->name }} ·
                     {{ $post->created_at->format('d/m/Y H:i') }} ·
-                    in review sinds {{ $post->under_review_at->format('d/m/Y H:i') }}
+                    @if ($post->isRemoved())
+                        verwijderd op {{ $post->removed_at->format('d/m/Y H:i') }}
+                    @else
+                        in review sinds {{ $post->under_review_at->format('d/m/Y H:i') }}
+                    @endif
                 </p>
                 <p class="mt-2 whitespace-pre-line">{{ $post->content }}</p>
                 @if ($post->review_reason)

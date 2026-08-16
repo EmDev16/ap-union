@@ -3,24 +3,26 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\Post;
 use App\Models\User;
 use App\Notifications\PostUnderReview;
+use App\Services\ReviewConversation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PostReviewController extends Controller
 {
+    public function __construct(private ReviewConversation $conversations) {}
+
     public function index(Request $request): View
     {
         $this->authorize('review', Post::class);
 
         return view('admin.posts.index', [
-            'posts' => Post::whereNotNull('under_review_at')
-                ->with('user', 'media', 'reviewer')
+            'posts' => Post::where(fn ($query) => $query->whereNotNull('under_review_at')->orWhereNotNull('removed_at'))
+                ->with('user', 'media', 'reviewer', 'appeals')
                 ->latest('under_review_at')
                 ->get(),
         ]);
@@ -63,6 +65,8 @@ class PostReviewController extends Controller
             'under_review_at' => null,
             'reviewed_by' => null,
             'review_reason' => null,
+            'removed_at' => null,
+            'removed_by' => null,
         ]);
 
         return back()->with('status', 'De post staat weer online.');
@@ -70,36 +74,19 @@ class PostReviewController extends Controller
 
     private function warnAuthor(User $admin, Post $post): void
     {
-        $conversation = $this->conversationWith($admin, $post->user);
+        $conversation = $this->conversations->between($admin, $post->user);
 
-        $conversation->messages()->create([
-            'user_id' => $admin->id,
-            'system_type' => Message::REVIEW,
-            'body' => 'Your post of '.$post->created_at->format('d/m/Y').' is under review'
+        $this->conversations->message(
+            $conversation,
+            $admin,
+            'Your post of '.$post->created_at->format('d/m/Y').' is under review'
                 .($post->review_reason ? ' ('.$post->review_reason.')' : '')
                 .' and is hidden from other members while we check it.'
                 .' Let us know whether you agree with the review or want to contest it.',
-        ]);
-
-        $conversation->update(['last_message_at' => now()]);
-        $conversation->participants()->updateExistingPivot($admin->id, ['last_read_at' => now()]);
+            Message::REVIEW,
+            $post
+        );
 
         $post->user->notify(new PostUnderReview($admin, $post, $conversation));
-    }
-
-    private function conversationWith(User $admin, User $author): Conversation
-    {
-        $conversation = $admin->conversations()
-            ->whereHas('participants', fn ($query) => $query->whereKey($author->id))
-            ->first();
-
-        if ($conversation) {
-            return $conversation;
-        }
-
-        $conversation = Conversation::create();
-        $conversation->participants()->attach([$admin->id, $author->id]);
-
-        return $conversation;
     }
 }

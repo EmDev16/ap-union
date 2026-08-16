@@ -218,19 +218,29 @@
                                             class="mt-2 max-w-full h-auto">
                                     @endif
 
-                                    @if ($message->system_type === \App\Models\Message::REVIEW && $message->user_id !== auth()->id())
-                                        <div class="flex gap-2 mt-2">
-                                            <form method="POST" action="{{ route('messages.reply', $conversation) }}">
+                                    @php($reviewPost = $message->reviewPost())
+                                    @if ($reviewPost && $reviewPost->user_id === auth()->id())
+                                        <div class="mt-2">
+                                            <form method="POST" action="{{ route('messages.reply', $conversation) }}" class="inline">
                                                 @csrf
                                                 <input type="hidden" name="reply_to_id" value="{{ $message->id }}">
-                                                <input type="hidden" name="body" value="I agree with the review of my post.">
+                                                <input type="hidden" name="body" value="{{ $message->system_type === \App\Models\Message::REVIEW ? 'I agree with the review of my post.' : 'I accept your explanation.' }}">
                                                 <button type="submit" class="text-xs px-3 py-1 bg-gray-300 text-gray-900 rounded hover:bg-gray-400 font-semibold">I agree</button>
                                             </form>
-                                            <form method="POST" action="{{ route('messages.reply', $conversation) }}">
+                                            <form method="POST" action="{{ route('posts.appeals.store', $reviewPost) }}" class="inline mt-2 flex items-end gap-2">
                                                 @csrf
-                                                <input type="hidden" name="reply_to_id" value="{{ $message->id }}">
-                                                <input type="hidden" name="body" value="I contest the review of my post.">
-                                                <button type="submit" class="text-xs px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 font-semibold">I contest</button>
+                                                <label class="text-xs text-gray-600">
+                                                    @if ($message->system_type === \App\Models\Message::REVIEW)
+                                                        Waarom betwist je dit? (optioneel)
+                                                    @else
+                                                        Waarom ben je het nog altijd niet eens?
+                                                    @endif
+                                                    <textarea name="reason" rows="2" class="mt-1 w-full text-sm border border-gray-300 rounded p-1"
+                                                        @if ($message->system_type !== \App\Models\Message::REVIEW) required @endif></textarea>
+                                                </label>
+                                                <button type="submit" class="text-xs px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 font-semibold whitespace-nowrap">
+                                                    {{ $message->system_type === \App\Models\Message::REVIEW_REMOVED ? 'Laatste beroep' : 'I contest' }}
+                                                </button>
                                             </form>
                                         </div>
                                     @endif

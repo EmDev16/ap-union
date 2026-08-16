@@ -107,6 +107,7 @@
                     <li><a href="{{ route('admin.users.index') }}" class="underline">Gebruikers</a></li>
                     <li><a href="{{ route('admin.questions.index') }}" class="underline">Vragen</a></li>
                     <li><a href="{{ route('admin.posts.index') }}" class="underline">Posts in review</a></li>
+                    <li><a href="{{ route('admin.appeals.index') }}" class="underline">Beroepen</a></li>
                     <li><a href="{{ route('admin.faqs.index') }}" class="underline">FAQ</a></li>
                     <li><a href="{{ route('admin.news.index') }}" class="underline">Latest News</a></li>
                 </ul>

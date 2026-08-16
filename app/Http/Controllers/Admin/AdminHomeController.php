@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\NotificationController;
 use App\Models\Contact;
 use App\Models\Post;
+use App\Models\PostAppeal;
 use App\Models\Question;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -26,7 +27,8 @@ class AdminHomeController extends Controller
                 'Leden' => User::where('is_admin', false)->count(),
                 'Admins' => User::where('is_admin', true)->count(),
                 'Posts' => Post::published()->count(),
-                'In review' => Post::whereNotNull('under_review_at')->count(),
+                'In review' => Post::whereNotNull('under_review_at')->whereNull('removed_at')->count(),
+                'Open beroepen' => PostAppeal::whereNull('resolved_at')->where('admin_id', $request->user()->id)->count(),
                 'Vragen' => Question::count(),
                 'Open contactberichten' => Contact::where('is_answered', false)->count(),
             ],

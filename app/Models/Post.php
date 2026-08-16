@@ -12,7 +12,15 @@ class Post extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'content', 'under_review_at', 'reviewed_by', 'review_reason'];
+    protected $fillable = [
+        'user_id',
+        'content',
+        'under_review_at',
+        'reviewed_by',
+        'review_reason',
+        'removed_at',
+        'removed_by',
+    ];
 
     /**
      * Posts that are not hidden for review.
@@ -22,12 +30,17 @@ class Post extends Model
      */
     public function scopePublished(Builder $query): Builder
     {
-        return $query->whereNull('under_review_at');
+        return $query->whereNull('under_review_at')->whereNull('removed_at');
     }
 
     public function isUnderReview(): bool
     {
         return $this->under_review_at !== null;
+    }
+
+    public function isRemoved(): bool
+    {
+        return $this->removed_at !== null;
     }
 
     public function reviewer(): BelongsTo
@@ -55,11 +68,38 @@ class Post extends Model
         return $this->hasMany(Like::class);
     }
 
+    public function appeals(): HasMany
+    {
+        return $this->hasMany(PostAppeal::class)->orderBy('created_at');
+    }
+
+    /**
+     * The appeal the author may still file, or null when there is nothing left to contest.
+     */
+    public function nextAppealStage(): ?string
+    {
+        $appeals = $this->appeals()->get();
+
+        if ($appeals->contains(fn (PostAppeal $appeal) => $appeal->isOpen())) {
+            return null;
+        }
+
+        if ($this->isRemoved()) {
+            return $appeals->contains('stage', PostAppeal::AFTER_DELETE) ? null : PostAppeal::AFTER_DELETE;
+        }
+
+        if (! $this->isUnderReview() || $appeals->contains('stage', PostAppeal::SECOND)) {
+            return null;
+        }
+
+        return $appeals->contains('stage', PostAppeal::CONTEST) ? PostAppeal::SECOND : PostAppeal::CONTEST;
+    }
+
     /**
      * @return array<string, string>
      */
     protected function casts(): array
     {
-        return ['under_review_at' => 'datetime'];
+        return ['under_review_at' => 'datetime', 'removed_at' => 'datetime'];
     }
 }
