@@ -3,18 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\Question;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class FeedController extends Controller
 {
+    public function home()
+    {
+        if (! auth()->check()) {
+            return view('welcome');
+        }
+
+        return view('welcome', [
+            'posts' => $this->followingPosts(),
+            'notifications' => auth()->user()->notifications()->limit(5)->get(),
+            'questions' => Question::orderBy('created_at', 'desc')->limit(5)->get(),
+        ]);
+    }
+
     public function feed()
     {
-        $followingIds = auth()->user()->following()->pluck('users.id');
-        $posts = Post::whereIn('user_id', $followingIds)
-            ->with('user', 'media', 'comments.user', 'comments.replies', 'likes')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
-        return view('dashboard', compact('posts'));
+        return redirect()->route('home');
     }
 
     public function explore()
@@ -30,5 +39,18 @@ class FeedController extends Controller
         $posts = $query->orderBy('created_at', 'desc')->paginate(10);
 
         return view('posts.explore', compact('posts'));
+    }
+
+    /**
+     * @return LengthAwarePaginator<int, Post>
+     */
+    private function followingPosts()
+    {
+        $followingIds = auth()->user()->following()->pluck('users.id');
+
+        return Post::whereIn('user_id', $followingIds)
+            ->with('user', 'media', 'comments.user', 'comments.replies', 'likes')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
     }
 }

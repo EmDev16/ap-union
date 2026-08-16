@@ -16,6 +16,7 @@ class StoreContactRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255', 'regex:/^[\pL\s\-\']+$/u'],
             'email' => ['required', 'email', 'max:255'],
+            'type' => ['required', 'in:question,feedback'],
             'subject' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string', 'max:5000'],
         ];

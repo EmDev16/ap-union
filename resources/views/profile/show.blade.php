@@ -55,6 +55,7 @@
                     @if ($user->is(auth()->user()))
                         <div class="flex flex-col gap-2">
                             <a href="{{ route('posts.create') }}" class="inline-block rounded bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700 text-center">Create Post</a>
+                            <a href="{{ route('answers.index') }}" class="inline-block rounded bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700 text-center">My Answers</a>
                             <a href="{{ route('profile.edit') }}" class="inline-block rounded bg-gray-300 px-4 py-2 text-gray-900 font-semibold hover:bg-gray-400 text-center">Edit Profile</a>
                         </div>
                     @else
