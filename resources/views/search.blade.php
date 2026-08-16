@@ -20,16 +20,19 @@
                 class="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Search</button>
         </form>
 
-        @if ($term !== null)
+        @if ($term !== null || $showPostCounts)
             <ul class="space-y-4 mt-4">
                 @forelse ($members as $member)
-                    <li class="p-4 border bg-white/5">
+                    <li class="p-4 border bg-white/5 flex items-center justify-between gap-4">
                         <h3 class="text-lg font-medium">
                             <a href="{{ route('profile.show', $member) }}" class="hover:underline"
                                 data-member-link>
                                 {{ $member->username ?: $member->name }}
                             </a>
                         </h3>
+                        @if ($showPostCounts)
+                            <span class="text-sm text-gray-600">{{ $member->posts_count }} posts</span>
+                        @endif
                     </li>
                 @empty
                     <li class="p-4 border bg-white/5">
@@ -39,12 +42,14 @@
             </ul>
         @endif
 
-        <div data-recent-members hidden class="mt-8">
-            <h2 class="text-xl font-semibold">Recently searched</h2>
-            <ul data-recent-members-list class="space-y-4 mt-4"></ul>
-            <button type="button" data-recent-members-clear
-                class="mt-4 text-sm text-gray-600 underline">Clear this list</button>
-        </div>
+        @unless ($showPostCounts)
+            <div data-recent-members hidden class="mt-8">
+                <h2 class="text-xl font-semibold">Recently searched</h2>
+                <ul data-recent-members-list class="space-y-4 mt-4"></ul>
+                <button type="button" data-recent-members-clear
+                    class="mt-4 text-sm text-gray-600 underline">Clear this list</button>
+            </div>
+        @endunless
     </div>
 
     <script>
@@ -73,6 +78,10 @@
             }
 
             function renderRecent() {
+                if (!recent) {
+                    return;
+                }
+
                 const members = readRecent();
                 recentList.replaceChildren();
 
@@ -163,10 +172,12 @@
                 });
             });
 
-            recentClear.addEventListener('click', function () {
-                window.localStorage.removeItem(storageKey);
-                renderRecent();
-            });
+            if (recentClear) {
+                recentClear.addEventListener('click', function () {
+                    window.localStorage.removeItem(storageKey);
+                    renderRecent();
+                });
+            }
 
             renderRecent();
         })();

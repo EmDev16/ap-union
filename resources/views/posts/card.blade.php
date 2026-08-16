@@ -13,7 +13,22 @@
             </div>
         </div>
         @auth
-            @if($post->user_id !== auth()->id())
+            @if(auth()->user()->isAdmin())
+                @if($post->isUnderReview())
+                    <form action="{{ route('admin.posts.unreview', $post) }}" method="POST" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-sm px-3 py-1 bg-gray-300 text-gray-900 rounded hover:bg-gray-400 font-semibold">In review</button>
+                    </form>
+                @else
+                    <form action="{{ route('admin.posts.review', $post) }}" method="POST" class="inline flex items-center gap-2">
+                        @csrf
+                        <input type="text" name="reason" maxlength="255" placeholder="Reason"
+                            class="text-sm px-2 py-1 border border-gray-300 rounded">
+                        <button type="submit" class="text-sm px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 font-semibold">Report</button>
+                    </form>
+                @endif
+            @elseif($post->user_id !== auth()->id())
                 @if(auth()->user()->following()->where('following_id', $post->user_id)->exists())
                     <form action="{{ route('users.unfollow', $post->user) }}" method="POST" class="inline">
                         @csrf
@@ -29,6 +44,12 @@
             @endif
         @endauth
     </div>
+
+    @if($post->isUnderReview())
+        <p class="mb-3 text-sm text-red-700">
+            This post is under review and hidden from other members.
+        </p>
+    @endif
 
     <!-- Post Content -->
     @if($post->content)
@@ -54,7 +75,11 @@
     <!-- Actions -->
     <div class="flex gap-6 text-gray-700 mb-4 border-b pb-2">
         @auth
-            @if(auth()->user()->likes()->where('post_id', $post->id)->exists())
+            @if(auth()->user()->isAdmin())
+                <span class="flex items-center gap-1 text-gray-400">
+                    <span>🤍</span> <span class="text-sm">{{ $post->likes->count() }}</span>
+                </span>
+            @elseif(auth()->user()->likes()->where('post_id', $post->id)->exists())
                 <form action="{{ route('posts.unlike', $post) }}" method="POST" class="inline">
                     @csrf
                     @method('DELETE')
@@ -101,6 +126,7 @@
     <div class="space-y-3">
         <!-- Add Comment Form -->
         @auth
+            @unless(auth()->user()->isAdmin())
             <form action="{{ route('comments.store', $post) }}" method="POST" class="mb-4">
                 @csrf
                 <div class="flex gap-2">
@@ -111,6 +137,7 @@
                     <span class="text-red-500 text-xs">{{ $message }}</span>
                 @enderror
             </form>
+            @endunless
         @endauth
 
         <!-- Comments List -->
@@ -122,7 +149,7 @@
                         <p class="text-xs text-gray-600">{{ $comment->created_at->diffForHumans() }}</p>
                     </div>
                     @auth
-                        @if($comment->user_id === auth()->id() || auth()->user()->is_admin)
+                        @if($comment->user_id === auth()->id() || auth()->user()->isAdmin())
                             <form action="{{ route('comments.destroy', $comment) }}" method="POST" class="inline" onsubmit="return confirm('Delete?');">
                                 @csrf
                                 @method('DELETE')
@@ -144,7 +171,7 @@
                                         <p class="text-xs text-gray-600">{{ $reply->created_at->diffForHumans() }}</p>
                                     </div>
                                     @auth
-                                        @if($reply->user_id === auth()->id() || auth()->user()->is_admin)
+                                        @if($reply->user_id === auth()->id() || auth()->user()->isAdmin())
                                             <form action="{{ route('comments.destroy', $reply) }}" method="POST" class="inline" onsubmit="return confirm('Delete?');">
                                                 @csrf
                                                 @method('DELETE')

@@ -11,6 +11,10 @@ class LikeController extends Controller
     {
         $user = auth()->user();
 
+        if ($user->isAdmin()) {
+            return back()->with('error', 'Admins liken geen posts.');
+        }
+
         if (! $post->likes()->where('user_id', $user->id)->exists()) {
             $post->likes()->create(['user_id' => $user->id]);
 

@@ -11,6 +11,10 @@ class CommentController extends Controller
 {
     public function store(Post $post, Request $request)
     {
+        if ($request->user()->isAdmin()) {
+            return back()->with('error', 'Admins plaatsen geen reacties.');
+        }
+
         $validated = $request->validate([
             'content' => 'required|string|max:500',
             'parent_id' => 'nullable|exists:comments,id',

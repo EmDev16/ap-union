@@ -36,6 +36,9 @@ class ProfileController extends Controller
 
         return view('profile.show', [
             'user' => $user,
+            'questions' => $user->isAdmin()
+                ? $user->questions()->withCount('answers')->latest()->get()
+                : collect(),
         ]);
     }
 

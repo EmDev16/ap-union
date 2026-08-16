@@ -71,6 +71,11 @@ class User extends Authenticatable
         return $this->hasMany(Message::class);
     }
 
+    public function isAdmin(): bool
+    {
+        return (bool) $this->is_admin;
+    }
+
     public function questions(): HasMany
     {
         return $this->hasMany(Question::class);
@@ -90,6 +95,7 @@ class User extends Authenticatable
     {
         return [
             'birthday' => 'date',
+            'is_admin' => 'boolean',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];

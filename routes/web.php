@@ -1,9 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminHomeController;
 use App\Http\Controllers\Admin\ContactManagementController;
 use App\Http\Controllers\Admin\FaqCategoryManagementController;
 use App\Http\Controllers\Admin\FaqManagementController;
 use App\Http\Controllers\Admin\NewsManagementController;
+use App\Http\Controllers\Admin\PostAppealManagementController;
+use App\Http\Controllers\Admin\PostReviewController;
+use App\Http\Controllers\Admin\QuestionManagementController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\CommentController;
@@ -16,6 +20,7 @@ use App\Http\Controllers\MemberSearchController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PostAppealController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
@@ -25,6 +30,9 @@ Route::get('/', [FeedController::class, 'home'])->name('home');
 
 Route::get('/contact', [ContactController::class, 'create'])->name('contact.create');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+Route::get('/contact/{contact}', [ContactController::class, 'show'])
+    ->middleware('auth')
+    ->name('contact.show');
 
 Route::get('/news', [NewsController::class, 'index'])->name('news.index');
 Route::get('/news/{news}', [NewsController::class, 'show'])->name('news.show');
@@ -41,11 +49,25 @@ Route::get('/users/{user}', [ProfileController::class, 'show'])->name('profile.s
 Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminHomeController::class, 'index'])->name('home');
+    Route::get('questions', [QuestionManagementController::class, 'index'])->name('questions.index');
+    Route::get('questions/create', [QuestionManagementController::class, 'create'])->name('questions.create');
+    Route::post('questions', [QuestionManagementController::class, 'store'])->name('questions.store');
+    Route::get('questions/{question}/edit', [QuestionManagementController::class, 'edit'])->name('questions.edit');
+    Route::patch('questions/{question}', [QuestionManagementController::class, 'update'])->name('questions.update');
+    Route::get('posts', [PostReviewController::class, 'index'])->name('posts.index');
+    Route::post('posts/{post}/review', [PostReviewController::class, 'store'])->name('posts.review');
+    Route::delete('posts/{post}/review', [PostReviewController::class, 'destroy'])->name('posts.unreview');
+    Route::delete('posts/{post}', [PostReviewController::class, 'remove'])->name('posts.remove');
+    Route::delete('posts/{post}/purge', [PostReviewController::class, 'purge'])->name('posts.purge');
+    Route::get('appeals', [PostAppealManagementController::class, 'index'])->name('appeals.index');
+    Route::patch('appeals/{appeal}', [PostAppealManagementController::class, 'update'])->name('appeals.update');
     Route::resource('faqs', FaqManagementController::class)->except('show');
     Route::resource('faq-categories', FaqCategoryManagementController::class)->except('show');
     Route::resource('news', NewsManagementController::class)->except('show');
     Route::get('contacts', [ContactManagementController::class, 'index'])->name('contacts.index');
     Route::patch('contacts/{contact}', [ContactManagementController::class, 'update'])->name('contacts.update');
+    Route::post('contacts/{contact}/reply', [ContactManagementController::class, 'reply'])->name('contacts.reply');
     Route::get('users', [UserManagementController::class, 'index'])->name('users.index');
     Route::get('users/create', [UserManagementController::class, 'create'])->name('users.create');
     Route::post('users', [UserManagementController::class, 'store'])->name('users.store');
@@ -80,6 +102,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/messages/{conversation}', [MessageController::class, 'show'])->name('messages.show');
     Route::post('/messages/{conversation}', [MessageController::class, 'storeMessage'])->name('messages.reply');
     Route::delete('/messages/{conversation}', [MessageController::class, 'destroy'])->name('messages.destroy');
+    Route::post('/posts/{post}/appeals', [PostAppealController::class, 'store'])->name('posts.appeals.store');
     Route::post('/posts/{post}/like', [LikeController::class, 'store'])->name('posts.like');
     Route::delete('/posts/{post}/like', [LikeController::class, 'destroy'])->name('posts.unlike');
 });

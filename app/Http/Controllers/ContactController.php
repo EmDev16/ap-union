@@ -16,6 +16,13 @@ class ContactController extends Controller
         return view('contact');
     }
 
+    public function show(Contact $contact): View
+    {
+        $this->authorize('view', $contact);
+
+        return view('contact-answer', ['contact' => $contact]);
+    }
+
     public function store(StoreContactRequest $request): RedirectResponse
     {
         $contact = Contact::create($request->validated());

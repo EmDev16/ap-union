@@ -222,3 +222,21 @@ test('the navbar shows how many conversations have new messages', function () {
 
     expect($user->unreadConversationCount())->toBe(1);
 });
+
+test('the cogwheel of a conversation hides it for you only', function () {
+    $user = User::factory()->create();
+    $partner = User::factory()->create();
+    $user->following()->attach($partner->id);
+    $conversation = Conversation::create();
+    $conversation->participants()->attach([$user->id, $partner->id]);
+    $conversation->messages()->create(['user_id' => $partner->id, 'body' => 'Oud bericht']);
+
+    $this->actingAs($user)->get(route('messages.show', $conversation))
+        ->assertOk()
+        ->assertSee('Delete conversation for me');
+
+    $this->actingAs($user)->delete(route('messages.destroy', $conversation))->assertRedirect();
+
+    $this->actingAs($user)->get(route('messages'))->assertDontSee('Oud bericht');
+    $this->actingAs($partner)->get(route('messages'))->assertSee('Oud bericht');
+});

@@ -52,11 +52,20 @@
             @if (Route::has('login'))
                 <nav class="flex items-center justify-end gap-4">
                     @auth
-                        @can('create', \App\Models\Post::class)
-                            <a href="{{ route('posts.create') }}" class="inline-block rounded bg-indigo-600 px-5 py-1.5 text-sm leading-normal text-white font-semibold hover:bg-indigo-700">
-                                Create Post
+                        @if (auth()->user()->isAdmin())
+                            <a href="{{ route('admin.users.index') }}" class="inline-block rounded bg-gray-300 px-5 py-1.5 text-sm leading-normal text-gray-900 font-semibold hover:bg-gray-400">
+                                Users
                             </a>
-                        @endcan
+                            <a href="{{ route('admin.questions.create') }}" class="inline-block rounded bg-indigo-600 px-5 py-1.5 text-sm leading-normal text-white font-semibold hover:bg-indigo-700">
+                                Create Question
+                            </a>
+                        @else
+                            @can('create', \App\Models\Post::class)
+                                <a href="{{ route('posts.create') }}" class="inline-block rounded bg-indigo-600 px-5 py-1.5 text-sm leading-normal text-white font-semibold hover:bg-indigo-700">
+                                    Create Post
+                                </a>
+                            @endcan
+                        @endif
                         <!-- Settings Dropdown -->
                         <div class="hidden sm:flex sm:items-center sm:ms-6">
                             <x-dropdown align="right" width="48">
