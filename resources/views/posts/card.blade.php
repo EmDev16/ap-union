@@ -9,7 +9,7 @@
             @endif
             <div>
                 <a href="{{ route('profile.show', $post->user) }}" class="font-bold text-gray-900 hover:underline">{{ $post->user->username ?: $post->user->name }}</a>
-                <p class="text-xs text-gray-600">{{ $post->created_at->diffForHumans() }}</p>
+                <a href="{{ route('posts.show', $post) }}" class="text-xs text-gray-600 hover:underline">{{ $post->created_at->diffForHumans() }}</a>
             </div>
         </div>
         @auth
@@ -76,9 +76,9 @@
             </button>
         @endauth
 
-        <button class="flex items-center gap-1 hover:text-indigo-600 font-semibold">
+        <a href="{{ route('posts.show', $post) }}" class="flex items-center gap-1 hover:text-indigo-600 font-semibold">
             <span>💬</span> <span class="text-sm">{{ $post->comments->count() }}</span>
-        </button>
+        </a>
 
         <button type="button" class="flex items-center gap-1 hover:text-blue-600 font-semibold" onclick="openShareModal({{ $post->id }})">
             <span>🔗</span> <span class="text-sm">Share</span>

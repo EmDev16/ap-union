@@ -10,6 +10,13 @@ use Illuminate\View\View;
 
 class PostController extends Controller
 {
+    public function show(Post $post): View
+    {
+        return view('posts.show', [
+            'post' => $post->load('user', 'media', 'comments.user', 'comments.replies', 'likes'),
+        ]);
+    }
+
     public function create(): View
     {
         $this->authorize('create', Post::class);

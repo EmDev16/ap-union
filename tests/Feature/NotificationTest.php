@@ -93,10 +93,10 @@ test('every notification links to the right place', function () {
     $urls = $author->notifications()->get()->pluck('data.url')->all();
 
     expect($urls)->toContain(route('profile.show', $user))
-        ->toContain(route('profile.show', $author).'#post-'.$post->id)
-        ->toContain(route('profile.show', $author).'#comment-'.$comment->id);
+        ->toContain(route('posts.show', $post))
+        ->toContain(route('posts.show', $post).'#comment-'.$comment->id);
 
-    $this->actingAs($author)->get(route('profile.show', $author))
+    $this->actingAs($author)->get(route('posts.show', $post))
         ->assertOk()
         ->assertSee('id="post-'.$post->id.'"', false)
         ->assertSee('id="comment-'.$comment->id.'"', false);

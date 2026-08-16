@@ -29,7 +29,7 @@ class PostCommented extends Notification
         return [
             'title' => 'New comment',
             'description' => $this->actorName().' commented on your post.',
-            'url' => route('profile.show', $notifiable).'#comment-'.$this->comment->id,
+            'url' => route('posts.show', $this->comment->post_id).'#comment-'.$this->comment->id,
         ];
     }
 
