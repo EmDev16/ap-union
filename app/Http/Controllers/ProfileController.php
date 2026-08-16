@@ -25,7 +25,7 @@ class ProfileController extends Controller
     {
         return view('profile.edit', [
             'user' => $request->user()->load('interests'),
-            'interests' => Interest::orderBy('name')->get(),
+            'interests' => Interest::orderBy('category')->orderBy('name')->get()->groupBy('category'),
             'maxInterests' => User::MAX_INTERESTS,
         ]);
     }

@@ -80,15 +80,23 @@
             <x-input-label :value="__('Interests')" />
             <p class="text-sm text-gray-600">Kies er maximaal {{ $maxInterests }}. Leden kunnen je zo op interesse vinden.</p>
 
-            <div class="mt-2 grid gap-2" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));"
-                data-interests data-maximum="{{ $maxInterests }}">
-                @foreach ($interests as $interest)
-                    <label class="flex items-center gap-2 text-sm text-gray-900">
-                        <input type="checkbox" name="interests[]" value="{{ $interest->id }}"
-                            data-interest-checkbox
-                            @checked(in_array($interest->id, old('interests', $user->interests->pluck('id')->all())))>
-                        <span>{{ $interest->name }}</span>
-                    </label>
+            @php($chosen = old('interests', $user->interests->pluck('id')->all()))
+
+            <div class="mt-2 space-y-4" data-interests data-maximum="{{ $maxInterests }}">
+                @foreach ($interests as $category => $group)
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900">{{ $category }}</p>
+                        <div class="mt-1 grid gap-2" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+                            @foreach ($group as $interest)
+                                <label class="flex items-center gap-2 text-sm text-gray-900">
+                                    <input type="checkbox" name="interests[]" value="{{ $interest->id }}"
+                                        data-interest-checkbox
+                                        @checked(in_array($interest->id, $chosen))>
+                                    <span>{{ $interest->name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
                 @endforeach
             </div>
 
