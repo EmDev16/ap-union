@@ -34,14 +34,87 @@ class User extends Authenticatable
         return $this->hasMany(Comment::class);
     }
 
+    /**
+     * Members whose follow request this user accepted.
+     */
     public function followers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'follows', 'following_id', 'follower_id');
+        return $this->allFollowers()->wherePivotNotNull('accepted_at');
     }
 
+    /**
+     * Members who accepted the follow request of this user.
+     */
     public function following(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'following_id');
+        return $this->allFollowing()->wherePivotNotNull('accepted_at');
+    }
+
+    public function allFollowers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'follows', 'following_id', 'follower_id')
+            ->withPivot('accepted_at')
+            ->withTimestamps();
+    }
+
+    public function allFollowing(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'following_id')
+            ->withPivot('accepted_at')
+            ->withTimestamps();
+    }
+
+    /**
+     * Follow requests this user still has to accept or decline.
+     */
+    public function followRequests(): BelongsToMany
+    {
+        return $this->allFollowers()->wherePivotNull('accepted_at');
+    }
+
+    /**
+     * Follow requests this user sent that are still waiting.
+     */
+    public function pendingFollowing(): BelongsToMany
+    {
+        return $this->allFollowing()->wherePivotNull('accepted_at');
+    }
+
+    public function interests(): BelongsToMany
+    {
+        return $this->belongsToMany(Interest::class)->orderBy('name');
+    }
+
+    /**
+     * The maximum number of interests a member can pick.
+     */
+    public const MAX_INTERESTS = 6;
+
+    /**
+     * The maximum number of posts a member can show to visitors.
+     */
+    public const MAX_SHOWCASED_POSTS = 3;
+
+    public function follows(User $other): bool
+    {
+        return $this->following()->whereKey($other->id)->exists();
+    }
+
+    public function hasPendingRequestFor(User $other): bool
+    {
+        return $this->pendingFollowing()->whereKey($other->id)->exists();
+    }
+
+    /**
+     * Profiles are private: only the member, an admin and accepted followers see every post.
+     */
+    public function showsEveryPostTo(?User $viewer): bool
+    {
+        if ($viewer === null) {
+            return false;
+        }
+
+        return $viewer->is($this) || $viewer->isAdmin() || $viewer->follows($this);
     }
 
     public function likes(): HasMany

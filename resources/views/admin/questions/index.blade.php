@@ -15,6 +15,10 @@
                 @endif
                 <p class="mt-1 text-sm text-gray-500">
                     {{ $question->created_at->format('d/m/Y') }} · {{ $question->answers_count }} antwoorden
+                    @if ($question->answers_publish_on)
+                        · antwoorden {{ $question->answersArePublic() ? 'gepubliceerd op' : 'publiceren op' }}
+                        {{ $question->answers_publish_on->format('d/m/Y') }}
+                    @endif
                 </p>
                 <a href="{{ route('admin.questions.edit', $question) }}" class="mt-2 inline-block underline">Aanpassen</a>
             </article>

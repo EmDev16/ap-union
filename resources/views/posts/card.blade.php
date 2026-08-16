@@ -2,11 +2,7 @@
     <!-- Post Header -->
     <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
-            @if($post->user->profile_photo)
-                <img src="{{ asset('storage/' . $post->user->profile_photo) }}" alt="{{ $post->user->username ?: $post->user->name }}" class="w-8 h-8 rounded-full object-cover">
-            @else
-                <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
-            @endif
+            <x-avatar :user="$post->user" size="w-8 h-8" />
             <div>
                 <a href="{{ route('profile.show', $post->user) }}" class="font-bold text-gray-900 hover:underline">{{ $post->user->username ?: $post->user->name }}</a>
                 <a href="{{ route('posts.show', $post) }}" class="text-xs text-gray-600 hover:underline">{{ $post->created_at->diffForHumans() }}</a>
@@ -29,11 +25,17 @@
                     </form>
                 @endif
             @elseif($post->user_id !== auth()->id())
-                @if(auth()->user()->following()->where('following_id', $post->user_id)->exists())
+                @if(auth()->user()->follows($post->user))
                     <form action="{{ route('users.unfollow', $post->user) }}" method="POST" class="inline">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="text-sm px-3 py-1 bg-gray-300 text-gray-900 rounded hover:bg-gray-400 font-semibold">Following</button>
+                    </form>
+                @elseif(auth()->user()->hasPendingRequestFor($post->user))
+                    <form action="{{ route('users.unfollow', $post->user) }}" method="POST" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-sm px-3 py-1 bg-gray-300 text-gray-900 rounded hover:bg-gray-400 font-semibold">Requested</button>
                     </form>
                 @else
                     <form action="{{ route('users.follow', $post->user) }}" method="POST" class="inline">

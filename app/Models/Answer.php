@@ -16,6 +16,11 @@ class Answer extends Model
         'body',
     ];
 
+    public function isPublic(): bool
+    {
+        return $this->question !== null && $this->question->answersArePublic();
+    }
+
     public function question(): BelongsTo
     {
         return $this->belongsTo(Question::class);

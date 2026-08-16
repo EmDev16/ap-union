@@ -15,7 +15,24 @@ class Question extends Model
         'user_id',
         'title',
         'description',
+        'answers_publish_on',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return ['answers_publish_on' => 'date'];
+    }
+
+    /**
+     * Answers become public on the day the admin picked.
+     */
+    public function answersArePublic(): bool
+    {
+        return $this->answers_publish_on !== null && ! $this->answers_publish_on->isFuture();
+    }
 
     public function user(): BelongsTo
     {

@@ -15,7 +15,8 @@
     >{{ __('Delete Account') }}</x-danger-button>
 
     <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-        <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+        <form method="post" action="{{ route('profile.destroy') }}" class="p-6"
+            onsubmit="return confirm('Weet je zeker dat je je account definitief wil verwijderen?');">
             @csrf
             @method('delete')
 

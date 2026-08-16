@@ -7,7 +7,7 @@
         <h2 class="text-xl font-semibold">Search for Members</h2>
         <form method="GET" action="{{ route('search') }}" class="flex items-center space-x-4">
             <div class="relative w-full">
-                <input type="text" name="q" value="{{ $term }}" placeholder="Search by name."
+                <input type="text" name="q" value="{{ $term }}" placeholder="Search by name or interest."
                     autocomplete="off"
                     data-member-search
                     data-suggestions-url="{{ route('search.suggestions') }}"
@@ -24,12 +24,20 @@
             <ul class="space-y-4 mt-4">
                 @forelse ($members as $member)
                     <li class="p-4 border bg-white/5 flex items-center justify-between gap-4">
-                        <h3 class="text-lg font-medium">
-                            <a href="{{ route('profile.show', $member) }}" class="hover:underline"
-                                data-member-link>
-                                {{ $member->username ?: $member->name }}
-                            </a>
-                        </h3>
+                        <div class="flex items-center gap-3">
+                            <x-avatar :user="$member" size="h-10 w-10" />
+                            <div>
+                                <h3 class="text-lg font-medium">
+                                    <a href="{{ route('profile.show', $member) }}" class="hover:underline"
+                                        data-member-link>
+                                        {{ $member->username ?: $member->name }}
+                                    </a>
+                                </h3>
+                                @if ($member->interests->isNotEmpty())
+                                    <p class="text-sm text-gray-600">{{ $member->interests->pluck('name')->join(', ') }}</p>
+                                @endif
+                            </div>
+                        </div>
                         @if ($showPostCounts)
                             <span class="text-sm text-gray-600">{{ $member->posts_count }} posts</span>
                         @endif

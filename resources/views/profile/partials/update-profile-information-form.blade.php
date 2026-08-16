@@ -69,11 +69,30 @@
             <x-input-label for="profile_photo" :value="__('Profile Photo')" />
 
             @if ($user->profile_photo)
-                <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="{{ $user->name }}" class="mt-2 h-24 w-24 rounded-full object-cover">
+                <x-avatar :user="$user" size="h-24 w-24" class="mt-2" />
             @endif
 
             <x-text-input id="profile_photo" name="profile_photo" type="file" class="mt-2 block w-full" accept="image/*" />
             <x-input-error class="mt-2" :messages="$errors->get('profile_photo')" />
+        </div>
+
+        <div>
+            <x-input-label :value="__('Interests')" />
+            <p class="text-sm text-gray-600">Kies er maximaal {{ $maxInterests }}. Leden kunnen je zo op interesse vinden.</p>
+
+            <div class="mt-2 grid gap-2" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));"
+                data-interests data-maximum="{{ $maxInterests }}">
+                @foreach ($interests as $interest)
+                    <label class="flex items-center gap-2 text-sm text-gray-900">
+                        <input type="checkbox" name="interests[]" value="{{ $interest->id }}"
+                            data-interest-checkbox
+                            @checked(in_array($interest->id, old('interests', $user->interests->pluck('id')->all())))>
+                        <span>{{ $interest->name }}</span>
+                    </label>
+                @endforeach
+            </div>
+
+            <x-input-error class="mt-2" :messages="$errors->get('interests')" />
         </div>
 
         <div class="flex items-center gap-4">
@@ -90,4 +109,26 @@
             @endif
         </div>
     </form>
+    <script>
+        (function () {
+            const group = document.querySelector('[data-interests]');
+
+            if (! group) {
+                return;
+            }
+
+            const maximum = Number(group.dataset.maximum);
+            const boxes = Array.from(group.querySelectorAll('[data-interest-checkbox]'));
+
+            const limit = () => {
+                const checked = boxes.filter((box) => box.checked).length;
+                boxes.forEach((box) => {
+                    box.disabled = ! box.checked && checked >= maximum;
+                });
+            };
+
+            boxes.forEach((box) => box.addEventListener('change', limit));
+            limit();
+        })();
+    </script>
 </section>

@@ -96,6 +96,7 @@ test('an admin only follows other admins', function () {
     expect($admin->following()->count())->toBe(0);
 
     $this->actingAs($admin)->post(route('users.follow', $other));
+    $this->actingAs($other)->post(route('follows.accept', $admin));
     expect($admin->following()->pluck('users.id')->all())->toBe([$other->id]);
 });
 
@@ -152,7 +153,7 @@ test('a reported post is hidden and the author gets a message with the review', 
     $author = User::factory()->create(['is_admin' => false]);
     $reader = User::factory()->create(['is_admin' => false]);
     $post = Post::factory()->create(['user_id' => $author->id, 'content' => 'Ongepaste post']);
-    $reader->following()->attach($author->id);
+    $reader->following()->attach($author->id, ['accepted_at' => now()]);
 
     $this->actingAs($admin)->post(route('admin.posts.review', $post), ['reason' => 'Ongepast'])->assertRedirect();
 

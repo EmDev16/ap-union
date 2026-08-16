@@ -179,7 +179,7 @@ test('a removed post stays hidden for everybody', function () {
     $admin = User::factory()->create(['is_admin' => true]);
     $author = User::factory()->create(['is_admin' => false]);
     $reader = User::factory()->create(['is_admin' => false]);
-    $reader->following()->attach($author->id);
+    $reader->following()->attach($author->id, ['accepted_at' => now()]);
     $post = Post::factory()->create(['user_id' => $author->id, 'content' => 'Verwijderde post']);
     $post->update(['removed_at' => now(), 'removed_by' => $admin->id]);
 

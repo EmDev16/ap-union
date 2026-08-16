@@ -86,6 +86,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/feed', [FeedController::class, 'feed'])->name('feed');
     Route::post('/users/{user}/follow', [FollowController::class, 'store'])->name('users.follow');
     Route::delete('/users/{user}/follow', [FollowController::class, 'destroy'])->name('users.unfollow');
+    Route::get('/follow-requests', [FollowController::class, 'requests'])->name('follows.requests');
+    Route::post('/users/{user}/follow/accept', [FollowController::class, 'accept'])->name('follows.accept');
+    Route::delete('/users/{user}/follow/decline', [FollowController::class, 'decline'])->name('follows.decline');
+    Route::get('/users/{user}/followers', [FollowController::class, 'followers'])->name('follows.followers');
+    Route::get('/users/{user}/following', [FollowController::class, 'following'])->name('follows.following');
+    Route::get('/showcase', [PostController::class, 'showcase'])->name('posts.showcase');
+    Route::patch('/showcase', [PostController::class, 'updateShowcase'])->name('posts.showcase.update');
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::get('/questions', [QuestionController::class, 'index'])->name('questions.index');
