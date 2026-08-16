@@ -218,6 +218,23 @@
                                             class="mt-2 max-w-full h-auto">
                                     @endif
 
+                                    @if ($message->system_type === \App\Models\Message::REVIEW && $message->user_id !== auth()->id())
+                                        <div class="flex gap-2 mt-2">
+                                            <form method="POST" action="{{ route('messages.reply', $conversation) }}">
+                                                @csrf
+                                                <input type="hidden" name="reply_to_id" value="{{ $message->id }}">
+                                                <input type="hidden" name="body" value="I agree with the review of my post.">
+                                                <button type="submit" class="text-xs px-3 py-1 bg-gray-300 text-gray-900 rounded hover:bg-gray-400 font-semibold">I agree</button>
+                                            </form>
+                                            <form method="POST" action="{{ route('messages.reply', $conversation) }}">
+                                                @csrf
+                                                <input type="hidden" name="reply_to_id" value="{{ $message->id }}">
+                                                <input type="hidden" name="body" value="I contest the review of my post.">
+                                                <button type="submit" class="text-xs px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 font-semibold">I contest</button>
+                                            </form>
+                                        </div>
+                                    @endif
+
                                     <div class="flex items-center justify-between gap-4 mt-2">
                                         <span class="text-xs text-gray-500">{{ $message->created_at->format('d/m/Y H:i') }}</span>
                                         <button type="button" class="text-xs text-indigo-600 underline"

@@ -46,9 +46,11 @@ class MessageController extends Controller
 
     public function create(Request $request): View
     {
-        return view('messages.create', [
-            'members' => $request->user()->following()->orderBy('name')->get(),
-        ]);
+        $members = $request->user()->isAdmin()
+            ? User::whereKeyNot($request->user()->id)->orderBy('name')->get()
+            : $request->user()->following()->orderBy('name')->get();
+
+        return view('messages.create', ['members' => $members]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -59,7 +61,8 @@ class MessageController extends Controller
 
         $partner = User::findOrFail($validated['user_id']);
 
-        if (! $request->user()->following()->where('users.id', $partner->id)->exists()) {
+        if (! $request->user()->isAdmin()
+            && ! $request->user()->following()->where('users.id', $partner->id)->exists()) {
             throw ValidationException::withMessages([
                 'user_id' => 'You can only start a conversation with someone you follow.',
             ]);

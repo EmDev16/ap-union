@@ -15,6 +15,12 @@ class FollowController extends Controller
             return back()->with('error', 'Je kunt jezelf niet volgen.');
         }
 
+        if ($auth->isAdmin() !== $user->isAdmin()) {
+            return back()->with('error', $auth->isAdmin()
+                ? 'Als admin kun je enkel andere admins volgen.'
+                : 'Je kunt een adminaccount niet volgen.');
+        }
+
         if (! $auth->following()->where('following_id', $user->id)->exists()) {
             $auth->following()->attach($user->id);
             $user->notify(new NewFollower($auth));

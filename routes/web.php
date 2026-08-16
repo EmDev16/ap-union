@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminHomeController;
 use App\Http\Controllers\Admin\ContactManagementController;
 use App\Http\Controllers\Admin\FaqCategoryManagementController;
 use App\Http\Controllers\Admin\FaqManagementController;
 use App\Http\Controllers\Admin\NewsManagementController;
+use App\Http\Controllers\Admin\PostReviewController;
+use App\Http\Controllers\Admin\QuestionManagementController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\CommentController;
@@ -41,11 +44,21 @@ Route::get('/users/{user}', [ProfileController::class, 'show'])->name('profile.s
 Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminHomeController::class, 'index'])->name('home');
+    Route::get('questions', [QuestionManagementController::class, 'index'])->name('questions.index');
+    Route::get('questions/create', [QuestionManagementController::class, 'create'])->name('questions.create');
+    Route::post('questions', [QuestionManagementController::class, 'store'])->name('questions.store');
+    Route::get('questions/{question}/edit', [QuestionManagementController::class, 'edit'])->name('questions.edit');
+    Route::patch('questions/{question}', [QuestionManagementController::class, 'update'])->name('questions.update');
+    Route::get('posts', [PostReviewController::class, 'index'])->name('posts.index');
+    Route::post('posts/{post}/review', [PostReviewController::class, 'store'])->name('posts.review');
+    Route::delete('posts/{post}/review', [PostReviewController::class, 'destroy'])->name('posts.unreview');
     Route::resource('faqs', FaqManagementController::class)->except('show');
     Route::resource('faq-categories', FaqCategoryManagementController::class)->except('show');
     Route::resource('news', NewsManagementController::class)->except('show');
     Route::get('contacts', [ContactManagementController::class, 'index'])->name('contacts.index');
     Route::patch('contacts/{contact}', [ContactManagementController::class, 'update'])->name('contacts.update');
+    Route::post('contacts/{contact}/reply', [ContactManagementController::class, 'reply'])->name('contacts.reply');
     Route::get('users', [UserManagementController::class, 'index'])->name('users.index');
     Route::get('users/create', [UserManagementController::class, 'create'])->name('users.create');
     Route::post('users', [UserManagementController::class, 'store'])->name('users.store');

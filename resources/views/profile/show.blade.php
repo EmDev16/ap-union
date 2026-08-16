@@ -54,11 +54,16 @@
                 @auth
                     @if ($user->is(auth()->user()))
                         <div class="flex flex-col gap-2">
-                            <a href="{{ route('posts.create') }}" class="inline-block rounded bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700 text-center">Create Post</a>
-                            <a href="{{ route('answers.index') }}" class="inline-block rounded bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700 text-center">My Answers</a>
+                            @if (auth()->user()->isAdmin())
+                                <a href="{{ route('admin.questions.create') }}" class="inline-block rounded bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700 text-center">Create Question</a>
+                                <a href="{{ route('admin.questions.index') }}" class="inline-block rounded bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700 text-center">My Questions</a>
+                            @else
+                                <a href="{{ route('posts.create') }}" class="inline-block rounded bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700 text-center">Create Post</a>
+                                <a href="{{ route('answers.index') }}" class="inline-block rounded bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700 text-center">My Answers</a>
+                            @endif
                             <a href="{{ route('profile.edit') }}" class="inline-block rounded bg-gray-300 px-4 py-2 text-gray-900 font-semibold hover:bg-gray-400 text-center">Edit Profile</a>
                         </div>
-                    @else
+                    @elseif (auth()->user()->isAdmin() === $user->isAdmin())
                         <div>
                             @if ($user->followers()->where('follower_id', auth()->id())->exists())
                                 <form action="{{ route('users.unfollow', $user) }}" method="POST">
@@ -82,6 +87,25 @@
             <p class="mb-4 text-green-700">{{ session('status') }}</p>
         @endif
 
+        @if ($user->isAdmin())
+            <section class="mb-6">
+                <h2 class="text-xl font-bold mb-6">Questions</h2>
+                @forelse ($questions as $question)
+                    <article class="border border-gray-300 rounded-lg p-4 bg-white mb-3">
+                        <h3 class="font-semibold text-gray-900">{{ $question->title }}</h3>
+                        @if ($question->description)
+                            <p class="text-gray-700 mt-1">{{ $question->description }}</p>
+                        @endif
+                        <p class="text-sm text-gray-600 mt-1">
+                            {{ $question->created_at->format('d/m/Y') }} · {{ $question->answers_count }} answers
+                        </p>
+                    </article>
+                @empty
+                    <p class="text-gray-700">No questions yet.</p>
+                @endforelse
+            </section>
+        @endif
+
         <section>
             <h2 class="text-xl font-bold mb-6">Posts</h2>
             @guest
@@ -96,7 +120,7 @@
                     </p>
                 </div>
             @else
-                @forelse ($user->posts()->with('media', 'comments.user', 'comments.replies', 'likes')->orderBy('created_at', 'desc')->get() as $post)
+                @forelse ($user->posts()->unless($user->is(auth()->user()) || auth()->user()->isAdmin(), fn ($query) => $query->published())->with('media', 'comments.user', 'comments.replies', 'likes')->orderBy('created_at', 'desc')->get() as $post)
                     @include('posts.card', ['post' => $post])
                 @empty
                     <p>No posts yet.</p>

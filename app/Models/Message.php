@@ -10,7 +10,12 @@ class Message extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['conversation_id', 'user_id', 'reply_to_id', 'body', 'image_path'];
+    protected $fillable = ['conversation_id', 'user_id', 'reply_to_id', 'body', 'image_path', 'system_type'];
+
+    /**
+     * A message the app sent itself, like a post review warning.
+     */
+    public const REVIEW = 'post_review';
 
     public function conversation(): BelongsTo
     {

@@ -9,10 +9,13 @@ class Contact extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'email', 'type', 'subject', 'message', 'is_answered'];
+    protected $fillable = ['name', 'email', 'type', 'subject', 'message', 'is_answered', 'reply', 'replied_at'];
 
+    /**
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
-        return ['is_answered' => 'boolean'];
+        return ['is_answered' => 'boolean', 'replied_at' => 'datetime'];
     }
 }

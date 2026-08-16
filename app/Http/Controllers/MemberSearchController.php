@@ -19,14 +19,29 @@ class MemberSearchController extends Controller
     {
         $term = $this->term($request);
 
+        if ($request->user()?->isAdmin()) {
+            $members = $this->visibleTo($request->user())
+                ->when($term !== null, fn (Builder $query) => $this->match($query, (string) $term))
+                ->withCount('posts')
+                ->get();
+
+            return view('search', [
+                'members' => $members,
+                'term' => $term,
+                'minLength' => self::MIN_TERM_LENGTH,
+                'showPostCounts' => true,
+            ]);
+        }
+
         $members = $term === null
             ? collect()
-            : $this->search($term)->get();
+            : $this->search($request, $term)->get();
 
         return view('search', [
             'members' => $members,
             'term' => $term,
             'minLength' => self::MIN_TERM_LENGTH,
+            'showPostCounts' => false,
         ]);
     }
 
@@ -39,7 +54,7 @@ class MemberSearchController extends Controller
         }
 
         return response()->json(
-            $this->search($term)->limit(10)->get()->map(fn (User $user) => [
+            $this->search($request, $term)->limit(10)->get()->map(fn (User $user) => [
                 'name' => $user->username ?: $user->name,
                 'url' => route('profile.show', $user),
             ])
@@ -60,13 +75,33 @@ class MemberSearchController extends Controller
     /**
      * @return Builder<User>
      */
-    private function search(string $term)
+    private function search(Request $request, string $term): Builder
+    {
+        return $this->match($this->visibleTo($request->user()), $term);
+    }
+
+    /**
+     * Admin accounts stay out of the member search of ordinary users.
+     *
+     * @return Builder<User>
+     */
+    private function visibleTo(?User $viewer): Builder
     {
         return User::query()
-            ->where(function ($query) use ($term) {
-                $query->where('username', 'like', '%'.$term.'%')
-                    ->orWhere('name', 'like', '%'.$term.'%');
-            })
+            ->when(! $viewer?->isAdmin(), fn (Builder $query) => $query->where('is_admin', false))
+            ->when($viewer !== null, fn (Builder $query) => $query->whereKeyNot($viewer->id))
             ->orderBy('name');
+    }
+
+    /**
+     * @param  Builder<User>  $query
+     * @return Builder<User>
+     */
+    private function match(Builder $query, string $term): Builder
+    {
+        return $query->where(function (Builder $query) use ($term) {
+            $query->where('username', 'like', '%'.$term.'%')
+                ->orWhere('name', 'like', '%'.$term.'%');
+        });
     }
 }

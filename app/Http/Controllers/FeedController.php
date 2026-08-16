@@ -13,6 +13,10 @@ class FeedController extends Controller
             return view('welcome');
         }
 
+        if (auth()->user()->isAdmin()) {
+            return redirect()->route('admin.home');
+        }
+
         return view('welcome', [
             'posts' => $this->followingPosts(),
             'notifications' => auth()->user()->unreadNotifications()
@@ -33,7 +37,7 @@ class FeedController extends Controller
 
     public function explore()
     {
-        $query = Post::with('user', 'media', 'comments.user', 'comments.replies', 'likes');
+        $query = Post::published()->with('user', 'media', 'comments.user', 'comments.replies', 'likes');
 
         if (! auth()->check()) {
             $posts = $query->inRandomOrder()->limit(10)->get();
@@ -53,7 +57,8 @@ class FeedController extends Controller
     {
         $followingIds = auth()->user()->following()->pluck('users.id');
 
-        return Post::whereIn('user_id', $followingIds)
+        return Post::published()
+            ->whereIn('user_id', $followingIds)
             ->with('user', 'media', 'comments.user', 'comments.replies', 'likes')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
