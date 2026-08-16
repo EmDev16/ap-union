@@ -22,7 +22,7 @@ test('guests see the sign in invitation on messages', function () {
 test('a member can start a conversation with someone they follow', function () {
     $user = User::factory()->create();
     $partner = User::factory()->create();
-    $user->following()->attach($partner->id);
+    $user->following()->attach($partner->id, ['accepted_at' => now()]);
 
     $this->actingAs($user)
         ->post(route('messages.store'), ['user_id' => $partner->id])
@@ -45,7 +45,7 @@ test('a member cannot start a conversation with someone they do not follow', fun
 test('starting a conversation twice reuses the same conversation', function () {
     $user = User::factory()->create();
     $partner = User::factory()->create();
-    $user->following()->attach($partner->id);
+    $user->following()->attach($partner->id, ['accepted_at' => now()]);
 
     $this->actingAs($user)->post(route('messages.store'), ['user_id' => $partner->id]);
     $this->actingAs($user)->post(route('messages.store'), ['user_id' => $partner->id]);
@@ -160,7 +160,7 @@ test('the new conversation page only lists people you follow', function () {
     $user = User::factory()->create();
     $followed = User::factory()->create(['name' => 'Gevolgde Vriend']);
     User::factory()->create(['name' => 'Onbekende Persoon']);
-    $user->following()->attach($followed->id);
+    $user->following()->attach($followed->id, ['accepted_at' => now()]);
 
     $this->actingAs($user)->get(route('messages.create'))
         ->assertOk()
@@ -226,7 +226,7 @@ test('the navbar shows how many conversations have new messages', function () {
 test('the cogwheel of a conversation hides it for you only', function () {
     $user = User::factory()->create();
     $partner = User::factory()->create();
-    $user->following()->attach($partner->id);
+    $user->following()->attach($partner->id, ['accepted_at' => now()]);
     $conversation = Conversation::create();
     $conversation->participants()->attach([$user->id, $partner->id]);
     $conversation->messages()->create(['user_id' => $partner->id, 'body' => 'Oud bericht']);

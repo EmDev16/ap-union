@@ -32,6 +32,30 @@
                 max-width: var(--page-content-width);
             }
 
+            .profile-tools {
+                display: grid;
+                grid-auto-flow: column;
+                grid-auto-columns: 1fr;
+            }
+
+            .profile-tool {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                padding: 8px 10px;
+                font-weight: 600;
+                white-space: nowrap;
+            }
+
+            .profile-tool + .profile-tool {
+                border-left: 1px solid #d1d5db;
+            }
+
+            .profile-tool:hover {
+                background: #f3f4f6;
+            }
+
             .nav-count-badge {
                 display: inline-flex;
                 align-items: center;
@@ -46,6 +70,7 @@
                 font-weight: 600;
             }
         </style>
+        <x-theme />
     </head>
     <body class="bg-[#FDFDFC] dark:bg-[#ffffff] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-start min-h-screen flex-col">
                 <header class="page-shell text-sm mb-6 not-has-[nav]:hidden">

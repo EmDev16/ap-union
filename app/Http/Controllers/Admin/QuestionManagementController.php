@@ -34,6 +34,7 @@ class QuestionManagementController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'answers_publish_on' => ['nullable', 'date'],
         ]);
 
         $request->user()->questions()->create($validated);
@@ -55,6 +56,7 @@ class QuestionManagementController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'answers_publish_on' => ['nullable', 'date'],
         ]);
 
         $question->update($validated);

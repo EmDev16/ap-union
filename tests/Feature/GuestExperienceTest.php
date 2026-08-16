@@ -16,7 +16,7 @@ test('the home page invites guests to sign in instead of showing example content
 test('the home page shows the real feed to signed in users', function () {
     $user = User::factory()->create();
     $followed = User::factory()->create();
-    $user->following()->attach($followed->id);
+    $user->following()->attach($followed->id, ['accepted_at' => now()]);
     Post::factory()->create(['user_id' => $followed->id, 'content' => 'Post van iemand die ik volg']);
 
     $this->actingAs($user)->get('/')
@@ -123,10 +123,11 @@ test('guests only see username, description and post count on a profile', functi
         ->assertDontSee('Volgers');
 });
 
-test('signed in users see the full profile', function () {
+test('an accepted follower sees the full profile', function () {
     $owner = User::factory()->create(['username' => 'publicname']);
     Post::factory()->create(['user_id' => $owner->id, 'content' => 'Zichtbare post']);
     $viewer = User::factory()->create();
+    $viewer->following()->attach($owner->id, ['accepted_at' => now()]);
 
     $this->actingAs($viewer)->get(route('profile.show', $owner))
         ->assertOk()

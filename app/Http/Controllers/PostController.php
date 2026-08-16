@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePostRequest;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -44,6 +46,34 @@ class PostController extends Controller
         }
 
         return to_route('profile.show', $request->user())->with('status', 'Post gepubliceerd.');
+    }
+
+    /**
+     * Pick the posts visitors of the private profile may read.
+     */
+    public function showcase(Request $request): View
+    {
+        return view('posts.showcase', [
+            'posts' => $request->user()->posts()->published()->latest()->get(),
+            'maximum' => User::MAX_SHOWCASED_POSTS,
+        ]);
+    }
+
+    public function updateShowcase(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'posts' => ['nullable', 'array', 'max:'.User::MAX_SHOWCASED_POSTS],
+            'posts.*' => ['integer'],
+        ]);
+
+        $chosen = $request->user()->posts()
+            ->whereIn('id', $validated['posts'] ?? [])
+            ->pluck('id');
+
+        $request->user()->posts()->update(['is_showcased' => false]);
+        $request->user()->posts()->whereIn('id', $chosen)->update(['is_showcased' => true]);
+
+        return to_route('profile.show', $request->user())->with('status', 'Je gekozen posts zijn bewaard.');
     }
 
     public function destroy(Post $post): RedirectResponse

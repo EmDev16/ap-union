@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Interest;
 use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -30,6 +31,8 @@ class ProfileUpdateRequest extends FormRequest
             'birthday' => ['nullable', 'date'],
             'profile_photo' => ['nullable', 'image', 'max:2048'],
             'about_me' => ['nullable', 'string'],
+            'interests' => ['nullable', 'array', 'max:'.User::MAX_INTERESTS],
+            'interests.*' => [Rule::exists(Interest::class, 'id')],
         ];
     }
 }

@@ -23,6 +23,7 @@ class MemberSearchController extends Controller
             $members = $this->visibleTo($request->user())
                 ->when($term !== null, fn (Builder $query) => $this->match($query, (string) $term))
                 ->withCount('posts')
+                ->with('interests')
                 ->get();
 
             return view('search', [
@@ -35,7 +36,7 @@ class MemberSearchController extends Controller
 
         $members = $term === null
             ? collect()
-            : $this->search($request, $term)->get();
+            : $this->search($request, $term)->with('interests')->get();
 
         return view('search', [
             'members' => $members,
@@ -101,7 +102,8 @@ class MemberSearchController extends Controller
     {
         return $query->where(function (Builder $query) use ($term) {
             $query->where('username', 'like', '%'.$term.'%')
-                ->orWhere('name', 'like', '%'.$term.'%');
+                ->orWhere('name', 'like', '%'.$term.'%')
+                ->orWhereHas('interests', fn (Builder $interests) => $interests->where('name', 'like', '%'.$term.'%'));
         });
     }
 }

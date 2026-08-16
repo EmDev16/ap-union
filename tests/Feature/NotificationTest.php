@@ -5,13 +5,16 @@ use App\Models\User;
 use App\Notifications\NewFollower;
 use Illuminate\Support\Str;
 
-test('following a member creates a notification', function () {
+test('a follow request and its acceptance create notifications', function () {
     $user = User::factory()->create();
     $partner = User::factory()->create();
 
     $this->actingAs($user)->post(route('users.follow', $partner));
-
     expect($partner->notifications()->count())->toBe(1);
+
+    $this->actingAs($partner)->post(route('follows.accept', $user));
+    expect($user->notifications()->count())->toBe(1)
+        ->and($partner->notifications()->count())->toBe(2);
 });
 
 test('liking and commenting on a post notifies the author', function () {
@@ -86,6 +89,7 @@ test('every notification links to the right place', function () {
     $post = Post::factory()->create(['user_id' => $author->id]);
 
     $this->actingAs($user)->post(route('users.follow', $author));
+    $this->actingAs($author)->post(route('follows.accept', $user));
     $this->actingAs($user)->post(route('posts.like', $post));
     $this->actingAs($user)->post(route('comments.store', $post), ['content' => 'Mooi bericht']);
 

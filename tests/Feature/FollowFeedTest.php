@@ -9,14 +9,42 @@ test('guests cannot follow a user', function () {
     $this->post(route('users.follow', $user))->assertRedirect(route('login'));
 });
 
-test('users can follow and unfollow another user', function () {
+test('a follow only counts once the other member accepts it', function () {
     $user = User::factory()->create();
     $other = User::factory()->create();
 
     $this->actingAs($user)->post(route('users.follow', $other));
-    expect($user->following()->pluck('users.id'))->toContain($other->id);
+    expect($user->following()->count())->toBe(0)
+        ->and($user->pendingFollowing()->pluck('users.id'))->toContain($other->id)
+        ->and($other->followRequests()->count())->toBe(1);
+
+    $this->actingAs($other)->post(route('follows.accept', $user));
+    expect($user->following()->pluck('users.id'))->toContain($other->id)
+        ->and($other->followRequests()->count())->toBe(0);
 
     $this->actingAs($user)->delete(route('users.unfollow', $other));
+    expect($user->following()->count())->toBe(0);
+});
+
+test('a member declines a follow request', function () {
+    $user = User::factory()->create();
+    $other = User::factory()->create();
+
+    $this->actingAs($user)->post(route('users.follow', $other));
+    $this->actingAs($other)->delete(route('follows.decline', $user));
+
+    expect($other->followRequests()->count())->toBe(0)
+        ->and($user->following()->count())->toBe(0);
+});
+
+test('only the asked member can accept a follow request', function () {
+    $user = User::factory()->create();
+    $other = User::factory()->create();
+    $stranger = User::factory()->create();
+
+    $this->actingAs($user)->post(route('users.follow', $other));
+
+    $this->actingAs($stranger)->post(route('follows.accept', $user))->assertNotFound();
     expect($user->following()->count())->toBe(0);
 });
 
@@ -33,7 +61,7 @@ test('the feed only shows posts of followed users in chronological order', funct
     $followed = User::factory()->create();
     $stranger = User::factory()->create();
 
-    $user->following()->attach($followed->id);
+    $user->following()->attach($followed->id, ['accepted_at' => now()]);
 
     $older = Post::factory()->create(['user_id' => $followed->id, 'content' => 'Oudere post', 'created_at' => now()->subDay()]);
     $newer = Post::factory()->create(['user_id' => $followed->id, 'content' => 'Nieuwere post', 'created_at' => now()]);

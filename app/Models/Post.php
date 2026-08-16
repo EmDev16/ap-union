@@ -15,6 +15,7 @@ class Post extends Model
     protected $fillable = [
         'user_id',
         'content',
+        'is_showcased',
         'under_review_at',
         'reviewed_by',
         'review_reason',
@@ -105,6 +106,6 @@ class Post extends Model
      */
     protected function casts(): array
     {
-        return ['under_review_at' => 'datetime', 'removed_at' => 'datetime'];
+        return ['under_review_at' => 'datetime', 'removed_at' => 'datetime', 'is_showcased' => 'boolean'];
     }
 }
