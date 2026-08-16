@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use App\Models\Like;
+use App\Notifications\PostLiked;
 
 class LikeController extends Controller
 {
@@ -11,8 +11,12 @@ class LikeController extends Controller
     {
         $user = auth()->user();
 
-        if (!$post->likes()->where('user_id', $user->id)->exists()) {
+        if (! $post->likes()->where('user_id', $user->id)->exists()) {
             $post->likes()->create(['user_id' => $user->id]);
+
+            if ($post->user_id !== $user->id) {
+                $post->user->notify(new PostLiked($user, $post));
+            }
         }
 
         return back();

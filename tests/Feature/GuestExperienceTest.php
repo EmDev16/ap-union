@@ -13,13 +13,25 @@ test('the home page invites guests to sign in instead of showing example content
         ->assertDontSee('Notification 1');
 });
 
-test('the home page keeps the example content for signed in users', function () {
+test('the home page shows the real feed to signed in users', function () {
+    $user = User::factory()->create();
+    $followed = User::factory()->create();
+    $user->following()->attach($followed->id);
+    Post::factory()->create(['user_id' => $followed->id, 'content' => 'Post van iemand die ik volg']);
+
+    $this->actingAs($user)->get('/')
+        ->assertOk()
+        ->assertSee('Post van iemand die ik volg')
+        ->assertDontSee('Post Title 1 / Following A');
+});
+
+test('the home page asks signed in users without follows to explore', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)->get('/')
         ->assertOk()
-        ->assertSee('Post Title 1 / Following A')
-        ->assertSee('Notification 1');
+        ->assertSee("You don't follow anyone yet", false)
+        ->assertSee(route('explore'));
 });
 
 test('explore shows guests a maximum of ten posts without pagination', function () {

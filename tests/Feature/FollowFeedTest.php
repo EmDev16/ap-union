@@ -39,7 +39,7 @@ test('the feed only shows posts of followed users in chronological order', funct
     $newer = Post::factory()->create(['user_id' => $followed->id, 'content' => 'Nieuwere post', 'created_at' => now()]);
     Post::factory()->create(['user_id' => $stranger->id, 'content' => 'Post van een vreemde']);
 
-    $response = $this->actingAs($user)->get(route('feed'))->assertOk();
+    $response = $this->actingAs($user)->get(route('home'))->assertOk();
 
     $posts = $response->viewData('posts');
     expect($posts->pluck('id')->all())->toBe([$newer->id, $older->id]);

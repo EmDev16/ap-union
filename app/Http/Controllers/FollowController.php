@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\Request;
+use App\Notifications\NewFollower;
 
 class FollowController extends Controller
 {
@@ -15,11 +15,12 @@ class FollowController extends Controller
             return back()->with('error', 'Je kunt jezelf niet volgen.');
         }
 
-        if (!$auth->following()->where('following_id', $user->id)->exists()) {
+        if (! $auth->following()->where('following_id', $user->id)->exists()) {
             $auth->following()->attach($user->id);
+            $user->notify(new NewFollower($auth));
         }
 
-        return back()->with('success', 'Je volgt nu ' . $user->name);
+        return back()->with('success', 'Je volgt nu '.$user->name);
     }
 
     public function destroy(User $user)
@@ -27,6 +28,6 @@ class FollowController extends Controller
         $auth = auth()->user();
         $auth->following()->detach($user->id);
 
-        return back()->with('success', 'Je volgt ' . $user->name . ' niet meer.');
+        return back()->with('success', 'Je volgt '.$user->name.' niet meer.');
     }
 }

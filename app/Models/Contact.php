@@ -9,7 +9,7 @@ class Contact extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'email', 'subject', 'message', 'is_answered'];
+    protected $fillable = ['name', 'email', 'type', 'subject', 'message', 'is_answered'];
 
     protected function casts(): array
     {

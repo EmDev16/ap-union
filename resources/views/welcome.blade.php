@@ -1,63 +1,4 @@
 <x-layout title="Home">
-    @php
-        $notifications = $notifications ?? [
-            [
-                'title' => 'Notification 1',
-                'description' => 'This is a brief description of the notification. It gives you an idea of what the notification is about.',
-            ],
-            [
-                'title' => 'Notification 2',
-                'description' => 'This is a brief description of the notification. It gives you an idea of what the notification is about.',
-            ],
-            [
-                'title' => 'Notification 3',
-                'description' => 'This is a brief description of the notification. It gives you an idea of what the notification is about.',
-            ],
-            [
-                'title' => 'Notification 4',
-                'description' => 'This is a brief description of the notification. It gives you an idea of what the notification is about.',
-            ],
-        ];
-
-        $posts = $posts ?? [
-            [
-                'title' => 'Post Title 1 / Following A',
-                'description' => 'This is a brief description of the post content. It gives you an idea of what the post is about.',
-            ],
-            [
-                'title' => 'Post Title 2 / Following B',
-                'description' => 'This is a brief description of the post content. It gives you an idea of what the post is about. But this post has a video with it.',
-            ],
-            [
-                'title' => 'Post Title 3 / Following C',
-                'description' => 'This is a brief description of the post content. It gives you an idea of what the post is about.',
-            ],
-            [
-                'title' => 'Post Title 4 / Following D',
-                'description' => 'This is a brief description of the post content. It gives you an idea of what the post is about. But this post has pictures with it.',
-            ],
-        ];
-
-        $questions = $questions ?? [
-            [
-                'title' => 'Question 1',
-                'description' => 'This is a brief description of the question. It gives you an idea of what the question is about.',
-            ],
-            [
-                'title' => 'Question 2',
-                'description' => 'This is a brief description of the question. It gives you an idea of what the question is about.',
-            ],
-            [
-                'title' => 'Question 3',
-                'description' => 'This is a brief description of the question. It gives you an idea of what the question is about.',
-            ],
-            [
-                'title' => 'Question 4',
-                'description' => 'This is a brief description of the question. It gives you an idea of what the question is about.',
-            ],
-        ];
-    @endphp
-
     <style>
         .home-layout {
             display: grid;
@@ -109,6 +50,28 @@
         .home-sidebar-title {
             font-size: 18px;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .home-count-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 22px;
+            height: 22px;
+            padding: 0 6px;
+            border-radius: 999px;
+            background: #4f46e5;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .home-side-box-new {
+            border-left: 3px solid #4f46e5;
+            background: rgba(79, 70, 229, 0.06);
         }
 
         .home-main-title {
@@ -139,6 +102,28 @@
             line-height: 1.4;
         }
 
+        .question-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            z-index: 50;
+        }
+
+        .question-overlay[hidden] {
+            display: none;
+        }
+
+        .question-overlay-card {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            padding: 24px;
+            width: min(100%, 480px);
+        }
+
         @media (max-width: 900px) {
             .home-layout {
                 width: 100%;
@@ -156,7 +141,16 @@
     <div class="home-layout">
         <aside class="home-sidebar">
             <div>
-                <h2 class="home-sidebar-title">Notifications</h2>
+                <h2 class="home-sidebar-title">
+                    @auth
+                        <a href="{{ route('notifications.index') }}" class="hover:underline">Notifications</a>
+                        @if ($notificationCount > 0)
+                            <span class="home-count-badge">{{ $notificationCount }}</span>
+                        @endif
+                    @else
+                        Notifications
+                    @endauth
+                </h2>
                 <p class="home-muted">
                     New followers, likes, comments, and other interactions with your posts.
                 </p>
@@ -171,12 +165,30 @@
                 </div>
             @else
                 <ul class="home-list">
-                    @foreach ($notifications as $notification)
-                        <li class="home-side-box">
-                            <h3 class="home-item-title">{{ data_get($notification, 'title') }}</h3>
-                            <p class="home-small-text">{{ data_get($notification, 'description') }}</p>
+                    @forelse ($notifications as $notification)
+                        <li class="home-side-box home-side-box-new">
+                            <div class="flex items-start justify-between gap-2">
+                                <h3 class="home-item-title">
+                                    <a href="{{ data_get($notification->data, 'url', route('home')) }}" class="hover:underline">
+                                        {{ data_get($notification->data, 'title') }}
+                                    </a>
+                                </h3>
+
+                                <form method="POST" action="{{ route('notifications.dismiss', $notification->id) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="text-gray-500 hover:text-gray-900"
+                                        title="Hide this notification"
+                                        aria-label="Hide this notification">&times;</button>
+                                </form>
+                            </div>
+                            <p class="home-small-text">{{ data_get($notification->data, 'description') }}</p>
                         </li>
-                    @endforeach
+                    @empty
+                        <li class="home-side-box">
+                            <p class="home-small-text">No new notifications.</p>
+                        </li>
+                    @endforelse
                 </ul>
             @endguest
         </aside>
@@ -218,20 +230,37 @@
                     </p>
                 </div>
 
-                <ul class="home-post-list">
-                    @foreach ($posts as $post)
-                        <li class="home-post-box">
-                            <h3 class="home-post-title">{{ data_get($post, 'title') }}</h3>
-                            <p class="home-muted">{{ data_get($post, 'description') }}</p>
-                        </li>
-                    @endforeach
-                </ul>
+                @if ($posts->count() > 0)
+                    <div class="home-post-list">
+                        @foreach ($posts as $post)
+                            @include('posts.card', ['post' => $post])
+                        @endforeach
+                    </div>
+
+                    <div>
+                        {{ $posts->links() }}
+                    </div>
+                @else
+                    <div class="home-post-box">
+                        <p class="text-gray-600">
+                            You don't follow anyone yet. Go to
+                            <a href="{{ route('explore') }}" class="text-indigo-600 underline font-semibold">Explore</a>
+                            and follow some users!
+                        </p>
+                    </div>
+                @endif
             @endguest
         </main>
 
         <aside class="home-sidebar">
             <div>
-                <h2 class="home-sidebar-title">Questions</h2>
+                <h2 class="home-sidebar-title">
+                    @auth
+                        <a href="{{ route('questions.index') }}" class="hover:underline">Questions</a>
+                    @else
+                        Questions
+                    @endauth
+                </h2>
                 <p class="home-muted">
                     New questions, answered questions, and other question activity.
                 </p>
@@ -246,14 +275,67 @@
                 </div>
             @else
                 <ul class="home-list">
-                    @foreach ($questions as $question)
+                    @forelse ($questions as $question)
                         <li class="home-side-box">
-                            <h3 class="home-item-title">{{ data_get($question, 'title') }}</h3>
-                            <p class="home-small-text">{{ data_get($question, 'description') }}</p>
+                            <button type="button" class="question-open text-left"
+                                data-question-title="{{ $question->title }}"
+                                data-question-description="{{ $question->description }}"
+                                data-question-url="{{ route('questions.show', $question) }}">
+                                <h3 class="home-item-title">{{ $question->title }}</h3>
+                                <p class="home-small-text">{{ Str::limit($question->description, 90) }}</p>
+                            </button>
                         </li>
-                    @endforeach
+                    @empty
+                        <li class="home-side-box">
+                            <p class="home-small-text">No open questions.</p>
+                        </li>
+                    @endforelse
                 </ul>
             @endguest
         </aside>
     </div>
+
+    @auth
+        <div class="question-overlay" id="question-overlay" hidden>
+            <div class="question-overlay-card" id="question-overlay-card">
+                <h2 class="home-post-title" id="question-overlay-title"></h2>
+                <p class="home-muted" id="question-overlay-description"></p>
+                <a href="#" id="question-overlay-link"
+                    class="inline-block mt-4 rounded bg-indigo-600 px-4 py-2 text-white font-semibold hover:bg-indigo-700">
+                    Respond
+                </a>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const overlay = document.getElementById('question-overlay');
+                const card = document.getElementById('question-overlay-card');
+                const title = document.getElementById('question-overlay-title');
+                const description = document.getElementById('question-overlay-description');
+                const link = document.getElementById('question-overlay-link');
+
+                document.querySelectorAll('.question-open').forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        title.textContent = button.dataset.questionTitle;
+                        description.textContent = button.dataset.questionDescription;
+                        link.href = button.dataset.questionUrl;
+                        overlay.hidden = false;
+                    });
+                });
+
+                overlay.addEventListener('click', function (event) {
+                    if (! card.contains(event.target)) {
+                        overlay.hidden = true;
+                    }
+                });
+
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape') {
+                        overlay.hidden = true;
+                    }
+                });
+            });
+        </script>
+    @endauth
 </x-layout>

@@ -31,6 +31,20 @@
                 width: 100%;
                 max-width: var(--page-content-width);
             }
+
+            .nav-count-badge {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 20px;
+                height: 20px;
+                padding: 0 6px;
+                border-radius: 999px;
+                background: #4f46e5;
+                color: #ffffff;
+                font-size: 12px;
+                font-weight: 600;
+            }
         </style>
     </head>
     <body class="bg-[#FDFDFC] dark:bg-[#ffffff] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-start min-h-screen flex-col">
@@ -104,7 +118,15 @@
         <nav class="page-shell mb-6 flex items-center justify-between gap-6">
         <a href="/">Home</a>
         <a href="{{ route('explore') }}">Explore</a>
-        <a href="/messages">Messages</a>
+        <a href="/messages" class="flex items-center gap-2">
+            Messages
+            @auth
+                @php($unreadConversations = auth()->user()->unreadConversationCount())
+                @if ($unreadConversations > 0)
+                    <span class="nav-count-badge">{{ $unreadConversations }}</span>
+                @endif
+            @endauth
+        </a>
         <a href="/search">Search Members</a>
         <a href="{{ route('faq.index') }}">FAQ page</a>
         <a href="{{ route('news.index') }}">Latest News</a>

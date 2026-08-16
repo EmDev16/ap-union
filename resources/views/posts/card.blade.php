@@ -1,11 +1,15 @@
-<div class="border border-gray-300 rounded-lg p-4 bg-white shadow-sm">
+<div id="post-{{ $post->id }}" class="border border-gray-300 rounded-lg p-4 bg-white shadow-sm scroll-mt-24">
     <!-- Post Header -->
     <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
+            @if($post->user->profile_photo)
+                <img src="{{ asset('storage/' . $post->user->profile_photo) }}" alt="{{ $post->user->username ?: $post->user->name }}" class="w-8 h-8 rounded-full object-cover">
+            @else
+                <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
+            @endif
             <div>
-                <a href="{{ route('profile.show', $post->user) }}" class="font-bold text-gray-900 hover:underline">{{ $post->user->name }}</a>
-                <p class="text-xs text-gray-600">{{ $post->created_at->diffForHumans() }}</p>
+                <a href="{{ route('profile.show', $post->user) }}" class="font-bold text-gray-900 hover:underline">{{ $post->user->username ?: $post->user->name }}</a>
+                <a href="{{ route('posts.show', $post) }}" class="text-xs text-gray-600 hover:underline">{{ $post->created_at->diffForHumans() }}</a>
             </div>
         </div>
         @auth
@@ -72,9 +76,9 @@
             </button>
         @endauth
 
-        <button class="flex items-center gap-1 hover:text-indigo-600 font-semibold">
+        <a href="{{ route('posts.show', $post) }}" class="flex items-center gap-1 hover:text-indigo-600 font-semibold">
             <span>💬</span> <span class="text-sm">{{ $post->comments->count() }}</span>
-        </button>
+        </a>
 
         <button type="button" class="flex items-center gap-1 hover:text-blue-600 font-semibold" onclick="openShareModal({{ $post->id }})">
             <span>🔗</span> <span class="text-sm">Share</span>
@@ -111,10 +115,10 @@
 
         <!-- Comments List -->
         @foreach($post->comments()->whereNull('parent_id')->orderBy('created_at', 'desc')->with('replies')->get() as $comment)
-            <div class="border-l-2 border-gray-300 pl-3 py-2">
+            <div id="comment-{{ $comment->id }}" class="border-l-2 border-gray-300 pl-3 py-2 scroll-mt-24">
                 <div class="flex items-start justify-between">
                     <div class="flex-1">
-                        <a href="{{ route('profile.show', $comment->user) }}" class="font-semibold text-sm text-gray-900 hover:underline">{{ $comment->user->name }}</a>
+                        <a href="{{ route('profile.show', $comment->user) }}" class="font-semibold text-sm text-gray-900 hover:underline">{{ $comment->user->username ?: $comment->user->name }}</a>
                         <p class="text-xs text-gray-600">{{ $comment->created_at->diffForHumans() }}</p>
                     </div>
                     @auth
@@ -133,10 +137,10 @@
                 @if($comment->replies->count() > 0)
                     <div class="mt-2 space-y-2">
                         @foreach($comment->replies as $reply)
-                            <div class="border-l-2 border-gray-200 pl-3 py-1">
+                            <div id="comment-{{ $reply->id }}" class="border-l-2 border-gray-200 pl-3 py-1 scroll-mt-24">
                                 <div class="flex items-start justify-between">
                                     <div>
-                                        <a href="{{ route('profile.show', $reply->user) }}" class="font-semibold text-xs text-gray-900 hover:underline">{{ $reply->user->name }}</a>
+                                        <a href="{{ route('profile.show', $reply->user) }}" class="font-semibold text-xs text-gray-900 hover:underline">{{ $reply->user->username ?: $reply->user->name }}</a>
                                         <p class="text-xs text-gray-600">{{ $reply->created_at->diffForHumans() }}</p>
                                     </div>
                                     @auth
